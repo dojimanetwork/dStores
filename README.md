@@ -295,3 +295,4 @@ If you encounter any issues:
 ---
 
 **Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**
+# dStores
