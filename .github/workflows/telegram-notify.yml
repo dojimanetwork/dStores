@@ -13,13 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: appleboy/telegram-action@master
+      - name: 📩 Send Telegram Notification
+        uses: appleboy/telegram-action@master
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          message: |
-            📢 **${{ github.event.head_commit.message }}**
-            - Repo/Branch: ${{ github.repository }}/${{ github.ref_name }}
-            - Author: ${{ github.event.head_commit.author.name }}
-            - Commit ID: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
-
+          format: html
+          parse_mode: HTML
+          message: >
+            <b><u>${{ github.event.head_commit.message }}</u></b>
+            &#10;🔸 <b>Repo/Branch:</b> <code>${{ github.repository }}/${{ github.ref_name }}</code>
+            &#10;🔸 <b>Author:</b> <code>${{ github.event.head_commit.author.name }}</code>
+            &#10;🔸 <b>Commit:</b> <a href="https://github.com/${{ github.repository }}/commit/${{ github.sha }}">View on GitHub</a>
