@@ -27,40 +27,25 @@ export default function DashboardHome() {
 
   const dashboardCards = [
     {
-      title: 'Template Builder',
-      description: 'Choose from professionally designed templates and customize them to your needs',
+      title: 'Templates',
+      description: 'Choose from professionally designed templates and customize them to your brand',
       icon: '🎨',
       href: '/dashboard/build/templates',
+      category: 'Quick Start'
     },
     {
       title: 'Visual Editor',
-      description: 'Design your store with a drag-and-drop visual editor',
+      description: 'Design your store with a powerful drag-and-drop visual editor',
       icon: '🎯',
-      href: '/dashboard/build/visual',
+      href: '/dashboard/build/grapesjs',
+      category: 'Custom Build'
     },
     {
-      title: 'AI Generator',
+      title: 'AI Builder',
       description: 'Let AI create a custom design based on your brand and preferences',
       icon: '🤖',
       href: '/dashboard/build/ai-generate',
-    },
-    {
-      title: 'GrapesJS Editor',
-      description: 'Advanced web page builder with component-based editing',
-      icon: '🔧',
-      href: '/dashboard/build/grapesjs',
-    },
-    {
-      title: 'Builder.io',
-      description: 'Professional visual development platform for modern websites',
-      icon: '⚡',
-      href: '/dashboard/build/builderio',
-    },
-    {
-      title: 'Plasmic Studio',
-      description: 'No-code visual builder for React components and pages',
-      icon: '🎪',
-      href: '/dashboard/build/plasmic',
+      category: 'AI Powered'
     },
   ];
 
@@ -99,7 +84,9 @@ export default function DashboardHome() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Build Your Store</h2>
+          <p className="text-gray-600 mb-8">Choose your preferred method to create your online store</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Test Nexus Template Button */}
             <button
@@ -148,7 +135,12 @@ export default function DashboardHome() {
                 }}
                 tabIndex={0}
               >
-                <div className="text-3xl mb-4">{card.icon}</div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-3xl">{card.icon}</span>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                    {card.category}
+                  </span>
+                </div>
                 <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
                   {card.title}
                 </h3>
@@ -170,6 +162,34 @@ export default function DashboardHome() {
                 </a>
               </button>
             ))}
+          </div>
+          
+          {/* Helper text explaining the options */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="font-medium text-gray-900 mb-3">Which option should I choose?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🎨</span>
+                  <span className="font-medium text-gray-900">Templates</span>
+                </div>
+                <p className="text-gray-600">Perfect for getting started quickly with proven designs. Just customize colors, content, and images.</p>
+              </div>
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🎯</span>
+                  <span className="font-medium text-gray-900">Visual Editor</span>
+                </div>
+                <p className="text-gray-600">Best for custom designs. Drag and drop components to build exactly what you envision.</p>
+              </div>
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🤖</span>
+                  <span className="font-medium text-gray-900">AI Builder</span>
+                </div>
+                <p className="text-gray-600">Let AI do the heavy lifting. Describe your vision and get a custom design generated for you.</p>
+              </div>
+            </div>
           </div>
         </div>
 

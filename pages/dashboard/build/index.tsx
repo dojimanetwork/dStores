@@ -34,47 +34,32 @@ export default function BuildHomePage() {
   const buildOptions = [
     {
       id: 'templates',
-      title: 'Template Builder',
-      description: 'Choose from professionally designed templates and customize them to your needs',
+      title: 'Templates',
+      description: 'Choose from professionally designed templates and customize them to your brand',
       href: '/dashboard/build/templates',
-      color: 'bg-blue-500',
+      icon: '🎨',
+      category: 'Quick Start',
+      color: 'from-blue-500 to-blue-600',
       popular: true
     },
     {
-      id: 'visual',
+      id: 'grapesjs',
       title: 'Visual Editor',
-      description: 'Build your store visually with drag-and-drop components',
-      href: '/dashboard/build/visual',
-      color: 'bg-purple-500'
+      description: 'Design your store with a powerful drag-and-drop visual editor',
+      href: '/dashboard/build/grapesjs',
+      icon: '🎯',
+      category: 'Custom Build',
+      color: 'from-purple-500 to-purple-600'
     },
     {
       id: 'ai-generate',
-      title: 'AI Generator',
-      description: 'Let AI create your store based on your business description',
+      title: 'AI Builder',
+      description: 'Let AI create a custom design based on your brand and preferences',
       href: '/dashboard/build/ai-generate',
-      color: 'bg-green-500',
+      icon: '🤖',
+      category: 'AI Powered',
+      color: 'from-green-500 to-green-600',
       new: true
-    },
-    {
-      id: 'grapesjs',
-      title: 'GrapesJS Editor',
-      description: 'Advanced web builder with complete design control',
-      href: '/dashboard/build/grapesjs',
-      color: 'bg-orange-500'
-    },
-    {
-      id: 'builderio',
-      title: 'Builder.io',
-      description: 'Professional page builder with advanced features',
-      href: '/dashboard/build/builderio',
-      color: 'bg-indigo-500'
-    },
-    {
-      id: 'plasmic',
-      title: 'Plasmic Studio',
-      description: 'Component-based visual development platform',
-      href: '/dashboard/build/plasmic',
-      color: 'bg-pink-500'
     }
   ];
 
@@ -135,70 +120,56 @@ export default function BuildHomePage() {
         </div>
 
         {/* Build Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {buildOptions.map((option) => {
             return (
               <div
                 key={option.id}
                 onClick={() => handleOptionClick(option.href, option.title)}
-                className="relative bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer group"
+                className="relative bg-white rounded-xl border border-gray-200 p-8 hover:shadow-xl hover:border-gray-300 transition-all cursor-pointer group"
               >
                 {/* Badges */}
-                <div className="absolute top-4 right-4 flex gap-2">
+                <div className="absolute top-6 right-6 flex gap-2">
                   {option.popular && (
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
                       Popular
                     </span>
                   )}
                   {option.new && (
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
                       New
                     </span>
                   )}
                 </div>
 
-                {/* Icon */}
-                <div className={`w-12 h-12 ${option.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <div className="w-6 h-6 bg-white rounded" />
+                {/* Icon and Category */}
+                <div className="mb-6">
+                  <div className={`w-16 h-16 bg-gradient-to-r ${option.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+                    <span className="text-2xl">{option.icon}</span>
+                  </div>
+                  <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                    {option.category}
+                  </span>
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {option.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-600 leading-relaxed mb-6">
                   {option.description}
                 </p>
 
-                {/* Arrow */}
-                <div className="mt-4 flex items-center text-blue-600 font-medium text-sm group-hover:translate-x-1 transition-transform">
+                {/* Call to Action */}
+                <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
                   Get Started
-                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        {/* Quick Stats */}
-        <div className="mt-12 bg-gray-50 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">12+</div>
-              <div className="text-sm text-gray-600">Templates Available</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">6</div>
-              <div className="text-sm text-gray-600">Builder Options</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">∞</div>
-              <div className="text-sm text-gray-600">Customization Possibilities</div>
-            </div>
-          </div>
         </div>
       </div>
     </DashboardLayout>
