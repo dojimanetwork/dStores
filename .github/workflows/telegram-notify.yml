@@ -18,9 +18,8 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
-            📢 GitHub Push Notification
-            🔸 Repo/Branch: ${{ github.repository }}/${{ github.ref_name }}
-            🔸 Commit Message: ${{ github.event.head_commit.message }}
-            🔸 Author: ${{ github.event.head_commit.author.name }}
-            🔸 Commit ID: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+            📢 <b><u>${{ github.event.head_commit.message }}</u></b>
+            - <b>Repo/Branch:<b> ${{ github.repository }}/${{ github.ref_name }}
+            - <b>Author:<b> ${{ github.event.head_commit.author.name }}
+            - <b>Commit ID:<b> [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
 
