@@ -11,8 +11,6 @@
     "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
-    "@builder.io/react": "^8.2.3",
-    "@builder.io/sdk": "^6.0.9",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@plasmicapp/cli": "^0.1.338",
@@ -40,7 +38,8 @@
     "react-error-boundary": "^6.0.0",
     "stripe": "^17.3.1",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
