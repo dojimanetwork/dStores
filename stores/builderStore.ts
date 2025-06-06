@@ -398,12 +398,14 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     const state = get();
     localStorage.setItem('builderPages', JSON.stringify(state.pages));
     localStorage.setItem('currentPage', JSON.stringify(state.currentPage));
+    localStorage.setItem('storeInfo', JSON.stringify(state.storeInfo));
   },
 
   loadPages: () => {
     try {
       const savedPages = localStorage.getItem('builderPages');
       const savedCurrentPage = localStorage.getItem('currentPage');
+      const savedStoreInfo = localStorage.getItem('storeInfo');
       
       if (savedPages) {
         const pages = JSON.parse(savedPages);
@@ -413,6 +415,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       if (savedCurrentPage) {
         const currentPage = JSON.parse(savedCurrentPage);
         set({ currentPage });
+      }
+      
+      if (savedStoreInfo) {
+        const storeInfo = JSON.parse(savedStoreInfo);
+        set({ storeInfo });
       }
     } catch (error) {
       console.error('Error loading pages:', error);
@@ -612,10 +619,17 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   setCurrentView: (view) => set({ currentView: view }),
 
-  updateStoreInfo: (info) => set({
-    storeInfo: {
-      ...get().storeInfo,
+  updateStoreInfo: (info) => set((state) => {
+    const updatedStoreInfo = {
+      ...state.storeInfo,
       ...info
-    }
+    };
+    
+    // Save to localStorage immediately
+    localStorage.setItem('storeInfo', JSON.stringify(updatedStoreInfo));
+    
+    return {
+      storeInfo: updatedStoreInfo
+    };
   })
 })); 

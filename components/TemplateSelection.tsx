@@ -36,7 +36,35 @@ export default function TemplateSelection() {
   };
 
   const handleTemplateConfirm = (templateId: string) => {
-    markBuildWebsiteComplete(templateId);
+    // Find the template data
+    const template = TEMPLATES.find(t => t.id === templateId);
+    
+    // Mark build website as complete in setup completion context
+    markBuildWebsiteComplete(templateId, 'template');
+    
+    // Also save template data to localStorage for additional persistence
+    if (template) {
+      localStorage.setItem('selectedTemplate', JSON.stringify({
+        id: templateId,
+        name: template.name,
+        category: template.category,
+        theme: template.theme || 'Default Theme',
+        selectedAt: new Date().toISOString()
+      }));
+      
+      // Save finalized website data for immediate availability
+      const finalizedData = {
+        type: 'Template',
+        description: `Professional template: ${template.name}`,
+        templateId: templateId,
+        theme: template.theme || 'Default Theme',
+        lastModified: new Date().toLocaleDateString(),
+        finalizedAt: new Date().toISOString()
+      };
+      localStorage.setItem('finalizedWebsite', JSON.stringify(finalizedData));
+    }
+    
+    // Navigate to template page
     router.push(`/dashboard/templates/${templateId}`);
     setSelectedTemplate(null);
   };

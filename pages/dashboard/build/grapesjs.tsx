@@ -16,6 +16,7 @@ import {
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useBuilderStore } from '@/stores/builderStore';
+import { useSetupCompletion } from '@/contexts/SetupCompletionContext';
 import { 
   ProductCard, 
   ProductGrid, 
@@ -522,6 +523,191 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
   );
 };
 
+// Add this new component after the PropertyEditorModal
+const SectionEditorModal = ({ isOpen, onClose }) => {
+  const { storeInfo, updateStoreInfo } = useBuilderStore();
+  const [formData, setFormData] = useState(storeInfo);
+
+  useEffect(() => {
+    setFormData(storeInfo);
+  }, [storeInfo]);
+
+  const handleSave = () => {
+    updateStoreInfo(formData);
+    
+    // Also update localStorage directly to ensure persistence
+    localStorage.setItem('storeInfo', JSON.stringify({
+      ...storeInfo,
+      ...formData
+    }));
+    
+    // Show success feedback
+    alert('Store information updated successfully! Your changes will be visible in the preview.');
+    onClose();
+  };
+
+  const handleChange = (field, value) => {
+    if (field.startsWith('social.')) {
+      const socialField = field.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        socialLinks: {
+          ...prev.socialLinks,
+          [socialField]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
+          <h2 className="text-xl font-semibold">Edit Store Information</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+          {/* Store Information */}
+          <div>
+            <h3 className="text-lg font-medium mb-4">Store Information</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Your Store Name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Store Description (About Page)</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => handleChange('description', e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Tell customers about your store..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-lg font-medium mb-4">Contact Information</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="contact@yourstore.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <textarea
+                  value={formData.address}
+                  onChange={(e) => handleChange('address', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="123 Main St, City, State 12345"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Social Media */}
+          <div>
+            <h3 className="text-lg font-medium mb-4">Social Media Links</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
+                <input
+                  type="url"
+                  value={formData.socialLinks?.facebook || ''}
+                  onChange={(e) => handleChange('social.facebook', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://facebook.com/yourstore"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+                <input
+                  type="url"
+                  value={formData.socialLinks?.instagram || ''}
+                  onChange={(e) => handleChange('social.instagram', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://instagram.com/yourstore"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Twitter URL</label>
+                <input
+                  type="url"
+                  value={formData.socialLinks?.twitter || ''}
+                  onChange={(e) => handleChange('social.twitter', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://twitter.com/yourstore"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-end gap-4 p-6 border-t flex-shrink-0 bg-white">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function VisualBuilder() {
   const router = useRouter();
   const {
@@ -541,38 +727,43 @@ export default function VisualBuilder() {
     loadPages,
     products,
     setProducts,
-    reorderComponents
+    reorderComponents,
+    storeInfo,
+    updateStoreInfo
   } = useBuilderStore();
+  
+  const { markBuildWebsiteComplete, isStepCompleted } = useSetupCompletion();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [showPropertyModal, setShowPropertyModal] = useState(false);
+  const [showSectionEditor, setShowSectionEditor] = useState(false);
 
   // Load user's products
+  const [productsLocal, setProductsLocal] = useState([]);
+
   useEffect(() => {
+    loadPages();
+    
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/products?storeId=1');
         if (response.ok) {
           const data = await response.json();
-          // Ensure data is an array before setting
-          setProducts(Array.isArray(data) ? data : []);
-        } else {
-          console.warn('Failed to fetch products, using empty array');
-          setProducts([]);
+          setProducts(data);
+          setProductsLocal(data);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
-        setProducts([]);
       }
     };
 
     fetchProducts();
-    loadPages();
     setIsLoading(false);
-  }, []);
+  }, [loadPages, setProducts]);
 
   // Initialize default page if none exists
   useEffect(() => {
-    if (!isLoading && !currentPage) {
+    if (!currentPage && !isLoading) {
       const defaultPage = {
         id: 'home',
         name: 'Home Page',
@@ -586,7 +777,34 @@ export default function VisualBuilder() {
       };
       setCurrentPage(defaultPage);
     }
-  }, [currentPage, isLoading, currentTheme, setCurrentPage]);
+  }, [currentPage, currentTheme, setCurrentPage, isLoading]);
+
+  const selectedComponentData = currentPage?.components.find(c => c.id === selectedComponent);
+
+  // Handle component selection and modal opening
+  const handleComponentSelect = (id) => {
+    selectComponent(id);
+    if (id) {
+      setShowPropertyModal(true);
+    } else {
+      setShowPropertyModal(false);
+    }
+  };
+
+  const handleClosePropertyModal = () => {
+    setShowPropertyModal(false);
+    selectComponent(null);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const handleDropComponent = (componentType) => {
     const newComponent = {
@@ -604,38 +822,88 @@ export default function VisualBuilder() {
       'hero': {
         title: 'Welcome to Your Store',
         subtitle: 'Discover amazing products at unbeatable prices',
-        buttonText: 'Shop Now'
+        buttonText: 'Shop Now',
+        secondaryButtonText: 'Learn More',
+        backgroundImage: '/api/placeholder/1200/400'
       },
       'product-grid': {
         title: 'Featured Products',
         columns: 3,
-        showFromUserProducts: true,
-        limit: 6
+        showViewAll: true,
+        showFromUserProducts: true
       },
       'product-card': {
-        showFromUserProducts: true
+        showFromUserProducts: true,
+        productId: 1
+      },
+      'cart-widget': {
+        itemCount: 0,
+        showBadge: true
+      },
+      'category-card': {
+        category: {
+          name: 'Electronics',
+          image: '/api/placeholder/300/200',
+          productCount: 150
+        }
       },
       'newsletter': {
         title: 'Stay Updated',
         subtitle: 'Get the latest deals and new arrivals in your inbox.',
+        placeholder: 'Enter your email address',
         buttonText: 'Subscribe'
       },
-      'features': {},
-      'cart-widget': { itemCount: 2 },
-      'category-card': {}
+      'features': {
+        features: [
+          { icon: 'truck', title: 'Free Shipping', description: 'On orders over $50' },
+          { icon: 'clock', title: 'Fast Delivery', description: '2-3 business days' },
+          { icon: 'shield', title: 'Secure Payments', description: 'SSL encryption' }
+        ]
+      }
     };
     return defaults[type] || {};
   };
 
   const handleSaveProject = () => {
     savePages();
-    alert('Project saved successfully!');
+    alert('Project saved as draft successfully!');
+  };
+
+  const handleFinalizeWebsite = () => {
+    // Save the project first
+    savePages();
+    
+    // Mark website as complete when finalized
+    if (currentPage && currentPage.components && currentPage.components.length > 0) {
+      markBuildWebsiteComplete('visual-builder', 'visual-builder');
+      
+      // Also save finalization data for the main build page
+      const websiteData = {
+        type: 'Visual Builder',
+        description: 'Custom website built with drag-and-drop editor',
+        componentCount: currentPage.components.length,
+        theme: currentPage.theme?.name || currentTheme.name || 'Default Theme',
+        lastModified: new Date().toISOString(),
+        finalizedAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('finalizedWebsite', JSON.stringify(websiteData));
+      
+      alert('🎉 Website finalized successfully! You can now proceed to add products.');
+      
+      // Redirect to build page to show the finalized status
+      setTimeout(() => {
+        router.push('/dashboard/build');
+      }, 1500);
+    } else {
+      alert('Please add at least one component before finalizing your website.');
+    }
   };
 
   const handlePreview = () => {
+    // Save before previewing
     savePages();
-    const previewUrl = `/store-preview?page=${currentPage?.id || 'home'}`;
-    window.open(previewUrl, '_blank');
+    router.push('/store-preview');
   };
 
   const handleMoveComponent = (fromIndex, toIndex) => {
@@ -650,8 +918,6 @@ export default function VisualBuilder() {
     acc[metadata.category].push({ type, metadata });
     return acc;
   }, {});
-
-  const selectedComponentData = currentPage?.components.find(c => c.id === selectedComponent);
 
   if (isLoading) {
     return (
@@ -668,65 +934,107 @@ export default function VisualBuilder() {
       <DndProvider backend={HTML5Backend}>
         <div className="flex flex-col h-screen">
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-                Back
-              </button>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Store Builder</h1>
-                <p className="text-sm text-gray-500">
-                  {currentPage?.components?.length || 0} components • Drag, edit, and rearrange to build your store
-                </p>
+          <div className="bg-white border-b border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between">
+              {/* Left Side */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.back()}
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <ArrowLeftIcon className="w-4 h-4" />
+                  Back
+                </button>
+                <div className="hidden sm:block h-4 w-px bg-gray-300"></div>
+                <div className="hidden sm:block">
+                  <h1 className="text-lg font-semibold text-gray-900">Visual Builder</h1>
+                  <p className="text-xs text-gray-500">
+                    {currentPage?.components?.length || 0} components
+                    {isStepCompleted('buildWebsite') && (
+                      <span className="ml-2 text-green-600">• Finalized</span>
+                    )}
+                  </p>
+                </div>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Theme selector */}
-              <select 
-                value={currentTheme.id} 
-                onChange={(e) => {
-                  const theme = themes.find(t => t.id === e.target.value);
-                  if (theme) setTheme(theme);
-                }}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {themes.map(theme => (
-                  <option key={theme.id} value={theme.id}>{theme.name}</option>
-                ))}
-              </select>
 
-              <button
-                onClick={togglePreview}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  isPreview 
-                    ? 'bg-blue-600 text-white' 
-                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <EyeIcon className="w-4 h-4" />
-                {isPreview ? 'Edit' : 'Preview'}
-              </button>
-              
-              <button
-                onClick={handleSaveProject}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <BookmarkSquareIcon className="w-4 h-4" />
-                Save
-              </button>
-              
-              <button
-                onClick={handlePreview}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                Open Preview
-              </button>
+              {/* Right Side */}
+              <div className="flex items-center gap-2">
+                {/* Theme Selector - Hidden on mobile */}
+                <select 
+                  value={currentTheme.id} 
+                  onChange={(e) => {
+                    const theme = themes.find(t => t.id === e.target.value);
+                    if (theme) setTheme(theme);
+                  }}
+                  className="hidden md:block px-2 py-1 border border-gray-300 rounded text-xs bg-white"
+                >
+                  {themes.map(theme => (
+                    <option key={theme.id} value={theme.id}>{theme.name}</option>
+                  ))}
+                </select>
+
+                {/* Preview Toggle */}
+                <button
+                  onClick={togglePreview}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    isPreview 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {isPreview ? 'Edit' : 'Preview'}
+                </button>
+
+                {/* Save Draft */}
+                <button
+                  onClick={handleSaveProject}
+                  className="px-2 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded text-xs transition-colors"
+                >
+                  Save
+                </button>
+
+                {/* Finalize/Status */}
+                {!isStepCompleted('buildWebsite') ? (
+                  <button
+                    onClick={handleFinalizeWebsite}
+                    disabled={!currentPage || !currentPage.components || currentPage.components.length === 0}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                      currentPage && currentPage.components && currentPage.components.length > 0
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Finalize
+                  </button>
+                ) : (
+                  <div className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                    ✓ Done
+                  </div>
+                )}
+
+                {/* Store Info Button */}
+                <button
+                  onClick={() => setShowSectionEditor(true)}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    storeInfo.name || storeInfo.description || storeInfo.email 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Info
+                  {(storeInfo.name || storeInfo.description || storeInfo.email) && (
+                    <span className="ml-1 w-1 h-1 bg-green-500 rounded-full inline-block"></span>
+                  )}
+                </button>
+
+                {/* Preview Link */}
+                <button
+                  onClick={handlePreview}
+                  className="px-2 py-1 text-gray-600 hover:text-gray-900 rounded text-xs transition-colors"
+                >
+                  <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -844,11 +1152,11 @@ export default function VisualBuilder() {
                             id={component.id}
                             type={component.type}
                             props={component.props}
-                            theme={currentTheme}
-                            isSelected={selectedComponent === component.id}
-                            onClick={selectComponent}
                             onUpdate={updateComponent}
                             onDelete={removeComponent}
+                            theme={currentTheme}
+                            isSelected={selectedComponent === component.id}
+                            onClick={handleComponentSelect}
                             index={index}
                             onMove={handleMoveComponent}
                           />
@@ -865,8 +1173,13 @@ export default function VisualBuilder() {
           <PropertyEditorModal 
             selectedComponent={selectedComponentData}
             onUpdate={updateComponent}
-            onClose={() => selectComponent(null)}
-            isOpen={selectedComponent !== null}
+            onClose={handleClosePropertyModal}
+            isOpen={showPropertyModal}
+          />
+          
+          <SectionEditorModal
+            isOpen={showSectionEditor}
+            onClose={() => setShowSectionEditor(false)}
           />
         </div>
       </DndProvider>

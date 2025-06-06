@@ -315,10 +315,11 @@ const AboutPage = ({ theme, storeInfo }) => (
         </h1>
         
         <div className="prose prose-lg">
-          <p className="text-gray-600 mb-6">
-            {storeInfo.description || 
-              'Welcome to our store! We are passionate about providing high-quality products and exceptional customer service. Our mission is to bring you the best selection of products at competitive prices.'}
-          </p>
+          {storeInfo.description && (
+            <p className="text-gray-600 mb-6">
+              {storeInfo.description}
+            </p>
+          )}
           
           <div className="grid md:grid-cols-2 gap-8 mt-8">
             <div>
@@ -610,6 +611,15 @@ export default function StorePreview() {
         if (savedCurrentPage) {
           const pageData = JSON.parse(savedCurrentPage);
           setPageData(pageData);
+        }
+        
+        // Load store info from localStorage
+        const savedStoreInfo = localStorage.getItem('storeInfo');
+        if (savedStoreInfo) {
+          const storeInfoData = JSON.parse(savedStoreInfo);
+          // Update the builder store with the saved store info
+          const { updateStoreInfo } = useBuilderStore.getState();
+          updateStoreInfo(storeInfoData);
         }
       } catch (error) {
         console.error('Error loading page data:', error);

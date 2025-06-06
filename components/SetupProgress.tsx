@@ -15,10 +15,11 @@ interface SetupProgressProps {
 
 export default function SetupProgress({ compact = false }: SetupProgressProps) {
   const router = useRouter();
-  const { isStepCompleted, getCompletionPercentage } = useSetupCompletion();
+  const { isStepCompleted, getCompletionPercentage, getBuildMethod } = useSetupCompletion();
   
   const currentStep = steps.findIndex(step => router.pathname.startsWith(step.path));
   const completedSteps = steps.filter(step => isStepCompleted(step.completionKey)).length;
+  const buildMethod = getBuildMethod();
 
   if (compact) {
     return (
@@ -28,6 +29,7 @@ export default function SetupProgress({ compact = false }: SetupProgressProps) {
           {steps.map((step, index) => {
             const isCompleted = isStepCompleted(step.completionKey);
             const isCurrent = router.pathname.startsWith(step.path);
+            const stepBuildMethod = step.completionKey === 'buildWebsite' && isCompleted ? buildMethod : null;
             
             return (
               <div
@@ -39,7 +41,7 @@ export default function SetupProgress({ compact = false }: SetupProgressProps) {
                     ? 'bg-blue-500' 
                     : 'bg-gray-300'
                 }`}
-                title={`${step.label}${isCompleted ? ' ✓' : ''}`}
+                title={`${step.label}${isCompleted ? ` ✓${stepBuildMethod ? ` (${stepBuildMethod})` : ''}` : ''}`}
               />
             );
           })}
@@ -57,6 +59,7 @@ export default function SetupProgress({ compact = false }: SetupProgressProps) {
         {steps.map((step, index) => {
           const isCompleted = isStepCompleted(step.completionKey);
           const isCurrent = router.pathname.startsWith(step.path);
+          const stepBuildMethod = step.completionKey === 'buildWebsite' && isCompleted ? buildMethod : null;
           
           return (
             <div key={step.id} className="flex flex-col items-center">
@@ -75,6 +78,11 @@ export default function SetupProgress({ compact = false }: SetupProgressProps) {
                 isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-600'
               }`}>
                 {step.label}
+                {stepBuildMethod && (
+                  <div className="text-xs text-green-500 mt-1">
+                    ({stepBuildMethod})
+                  </div>
+                )}
               </span>
             </div>
           );
