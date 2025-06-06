@@ -45,7 +45,7 @@ export default function BuildHomePage() {
     {
       id: 'grapesjs',
       title: 'Visual Editor',
-      description: 'Design your store with a powerful drag-and-drop visual editor',
+      description: 'Design your store with Plasmic\'s powerful drag-and-drop visual editor',
       href: '/dashboard/build/grapesjs',
       icon: '🎯',
       category: 'Custom Build',

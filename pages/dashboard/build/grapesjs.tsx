@@ -1,301 +1,282 @@
-import DashboardLayout from '@/components/DashboardLayout';
-import { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { ArrowLeftIcon, EyeIcon, CodeBracketIcon, DevicePhoneMobileIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
+import DashboardLayout from '@/components/DashboardLayout';
+import { ArrowLeftIcon, ArrowTopRightOnSquareIcon, BookmarkSquareIcon } from '@heroicons/react/24/outline';
+import { BuilderComponent, builder, useIsPreviewing } from '@builder.io/react';
+import { 
+  ProductCard, 
+  ProductGrid, 
+  HeroSection, 
+  CartWidget, 
+  CategoryCard,
+  NewsletterSignup,
+  FeatureHighlight,
+  registerBuilderComponents 
+} from '@/components/builder/EcommerceComponents';
 
-export default function GrapesJSBuilder() {
+// Initialize Builder with your API key
+builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY || 'YOUR_BUILDER_API_KEY');
+
+// Register all e-commerce components
+registerBuilderComponents();
+
+export default function VisualBuilder() {
   const router = useRouter();
-  const editorRef = useRef<HTMLDivElement>(null);
+  const [builderContent, setBuilderContent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const [showCode, setShowCode] = useState(false);
+  const [currentModel, setCurrentModel] = useState('page');
+  const isPreviewing = useIsPreviewing();
 
   useEffect(() => {
-    // Dynamically load GrapesJS
-    const loadGrapesJS = async () => {
+    const fetchContent = async () => {
       try {
-        // Load GrapesJS CSS
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/grapesjs/dist/css/grapes.min.css';
-        document.head.appendChild(link);
-
-        // Load GrapesJS JS
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/grapesjs';
-        script.onload = () => {
-          initializeEditor();
-        };
-        document.head.appendChild(script);
+        // Try to get existing content or create a new page
+        const content = await builder
+          .get(currentModel, {
+            userAttributes: {
+              urlPath: '/store-builder',
+            },
+          })
+          .toPromise();
+        
+        setBuilderContent(content);
       } catch (error) {
-        console.error('Failed to load GrapesJS:', error);
+        console.error('Error fetching Builder content:', error);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    const initializeEditor = () => {
-      if (editorRef.current && (window as any).grapesjs) {
-        const editor = (window as any).grapesjs.init({
-          container: editorRef.current,
-          height: '600px',
-          width: 'auto',
-          storageManager: false,
-          blockManager: {
-            appendTo: '#blocks',
-          },
-          styleManager: {
-            appendTo: '#styles',
-          },
-          layerManager: {
-            appendTo: '#layers',
-          },
-          traitManager: {
-            appendTo: '#traits',
-          },
-          selectorManager: {
-            appendTo: '#selectors',
-          },
-          panels: {
-            defaults: [
-              {
-                id: 'basic-actions',
-                el: '.panel__basic-actions',
-                buttons: [
-                  {
-                    id: 'visibility',
-                    active: true,
-                    className: 'btn-toggle-borders',
-                    label: '<i class="fa fa-clone"></i>',
-                    command: 'sw-visibility',
-                  },
-                  {
-                    id: 'export',
-                    className: 'btn-open-export',
-                    label: '<i class="fa fa-code"></i>',
-                    command: 'export-template',
-                    context: 'export-template',
-                  },
-                  {
-                    id: 'show-json',
-                    className: 'btn-show-json',
-                    label: '<i class="fa fa-download"></i>',
-                    context: 'show-json',
-                    command(editor: any) {
-                      editor.Modal.setTitle('Components JSON')
-                        .setContent(`<textarea style="width:100%; height: 250px;">
-                          ${JSON.stringify(editor.getComponents())}
-                        </textarea>`)
-                        .open();
-                    },
-                  }
-                ],
-              },
-              {
-                id: 'panel-devices',
-                el: '.panel__devices',
-                buttons: [
-                  {
-                    id: 'device-desktop',
-                    label: '<i class="fa fa-desktop"></i>',
-                    command: 'set-device-desktop',
-                    active: true,
-                    togglable: false,
-                  },
-                  {
-                    id: 'device-mobile',
-                    label: '<i class="fa fa-mobile"></i>',
-                    command: 'set-device-mobile',
-                    togglable: false,
-                  },
-                ],
-              },
-            ],
-          },
-          deviceManager: {
-            devices: [
-              {
-                name: 'Desktop',
-                width: '',
-              },
-              {
-                name: 'Mobile',
-                width: '320px',
-                widthMedia: '480px',
-              },
-            ],
-          },
-          plugins: [],
-          pluginsOpts: {},
-        });
+    fetchContent();
+  }, [currentModel]);
 
-        // Add some default content
-        editor.setComponents(`
-          <div style="padding: 20px; text-align: center;">
-            <h1>Welcome to Your Web3 Store</h1>
-            <p>Start building your digital storefront with our drag-and-drop editor.</p>
-            <button style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-              Shop Now
-            </button>
-          </div>
-        `);
+  const handleSaveProject = async () => {
+    try {
+      // In a real implementation, you would save the current state
+      console.log('Saving project...', builderContent);
+      // You could make an API call to save to your database here
+      alert('Project saved successfully!');
+    } catch (error) {
+      console.error('Error saving project:', error);
+      alert('Error saving project');
+    }
+  };
 
-        setIsLoading(false);
-      }
-    };
+  const handlePreview = () => {
+    // Open preview in new tab
+    const previewUrl = `/store-preview?model=${currentModel}`;
+    window.open(previewUrl, '_blank');
+  };
 
-    loadGrapesJS();
+  const handleCreateNew = () => {
+    setBuilderContent(null);
+    setIsLoading(false);
+  };
 
-    return () => {
-      // Cleanup
-      const links = document.querySelectorAll('link[href*="grapesjs"]');
-      const scripts = document.querySelectorAll('script[src*="grapesjs"]');
-      links.forEach(link => link.remove());
-      scripts.forEach(script => script.remove());
-    };
-  }, []);
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      <div className="h-full flex flex-col">
+      <div className="flex flex-col h-screen">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white">
-          <div className="flex items-center space-x-4">
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <ArrowLeftIcon className="h-5 w-5 mr-2" />
+              <ArrowLeftIcon className="w-5 h-5" />
               Back
             </button>
-            <h1 className="text-xl font-semibold">GrapesJS Visual Editor</h1>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {/* Device Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('desktop')}
-                className={`flex items-center px-3 py-1 rounded ${
-                  viewMode === 'desktop' ? 'bg-white shadow-sm' : ''
-                }`}
-              >
-                <ComputerDesktopIcon className="h-4 w-4 mr-1" />
-                Desktop
-              </button>
-              <button
-                onClick={() => setViewMode('mobile')}
-                className={`flex items-center px-3 py-1 rounded ${
-                  viewMode === 'mobile' ? 'bg-white shadow-sm' : ''
-                }`}
-              >
-                <DevicePhoneMobileIcon className="h-4 w-4 mr-1" />
-                Mobile
-              </button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Store Builder</h1>
+              <p className="text-sm text-gray-500">Drag and drop to build your store</p>
             </div>
-
-            {/* Action Buttons */}
-            <button
-              onClick={() => setShowCode(!showCode)}
-              className="flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <select 
+              value={currentModel} 
+              onChange={(e) => setCurrentModel(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
-              <CodeBracketIcon className="h-4 w-4 mr-2" />
-              {showCode ? 'Hide Code' : 'View Code'}
-            </button>
+              <option value="page">Full Page</option>
+              <option value="section">Page Section</option>
+              <option value="product-page">Product Page</option>
+            </select>
 
-            <button className="flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-              <EyeIcon className="h-4 w-4 mr-2" />
+            <button
+              onClick={handleCreateNew}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New
+            </button>
+            
+            <button
+              onClick={handleSaveProject}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <BookmarkSquareIcon className="w-4 h-4" />
+              Save
+            </button>
+            
+            <button
+              onClick={handlePreview}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <ArrowTopRightOnSquareIcon className="w-4 h-4" />
               Preview
             </button>
-
-            <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
-              Save & Deploy
-            </button>
           </div>
         </div>
 
-        {/* Editor Content */}
-        <div className="flex-1 flex">
-          {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r flex flex-col">
-            {/* Blocks Panel */}
-            <div className="p-4 border-b">
-              <h3 className="font-medium text-gray-900 mb-3">Blocks</h3>
-              <div id="blocks" className="min-h-[200px]"></div>
-            </div>
+        {/* Builder Interface */}
+        <div className="flex-1 bg-gray-50 flex">
+          {/* Component Palette - Left Sidebar */}
+          <div className="w-64 bg-white border-r border-gray-200 p-4 overflow-y-auto">
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Components</h3>
+            
+            <div className="space-y-4">
+              {/* Layout Components */}
+              <div>
+                <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Layout</h4>
+                <div className="space-y-2">
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors group">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Hero Section</span>
+                    </div>
+                  </div>
 
-            {/* Layers Panel */}
-            <div className="p-4 border-b">
-              <h3 className="font-medium text-gray-900 mb-3">Layers</h3>
-              <div id="layers" className="min-h-[150px]"></div>
-            </div>
-
-            {/* Styles Panel */}
-            <div className="p-4 flex-1">
-              <h3 className="font-medium text-gray-900 mb-3">Styles</h3>
-              <div id="styles" className="min-h-[200px]"></div>
-            </div>
-          </div>
-
-          {/* Main Editor */}
-          <div className="flex-1 flex flex-col">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between p-2 bg-gray-100 border-b">
-              <div className="panel__basic-actions flex space-x-2"></div>
-              <div className="panel__devices flex space-x-2"></div>
-            </div>
-
-            {/* Canvas */}
-            <div className="flex-1 relative">
-              {isLoading ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading GrapesJS Editor...</p>
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-green-50 hover:border-green-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-green-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Product Grid</span>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div ref={editorRef} className="h-full"></div>
-              )}
-            </div>
-          </div>
-
-          {/* Properties Panel */}
-          <div className="w-64 bg-gray-50 border-l">
-            <div className="p-4 border-b">
-              <h3 className="font-medium text-gray-900 mb-3">Properties</h3>
-              <div id="traits" className="min-h-[150px]"></div>
-            </div>
-
-            <div className="p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Selectors</h3>
-              <div id="selectors" className="min-h-[100px]"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Code View Modal */}
-        {showCode && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg w-3/4 h-3/4 flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="text-lg font-semibold">Generated Code</h3>
-                <button
-                  onClick={() => setShowCode(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
               </div>
-              <div className="flex-1 p-4">
-                <textarea
-                  className="w-full h-full font-mono text-sm border rounded p-4"
-                  placeholder="Generated HTML/CSS code will appear here..."
-                  readOnly
+
+              {/* E-commerce Components */}
+              <div>
+                <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">E-commerce</h4>
+                <div className="space-y-2">
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Product Card</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-orange-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 1.5M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Cart Widget</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-indigo-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Category Card</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Marketing Components */}
+              <div>
+                <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Marketing</h4>
+                <div className="space-y-2">
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-pink-50 hover:border-pink-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-pink-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Newsletter</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 hover:border-teal-300 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-teal-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium">Features</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Builder Area */}
+          <div className="flex-1 p-6">
+            {!builderContent && !isPreviewing ? (
+              // Default content when no Builder content exists
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center max-w-2xl">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">Start Building Your Store</h2>
+                  <p className="text-gray-600 mb-8">Use the components on the left to create your perfect e-commerce experience. Drag and drop to get started!</p>
+                  
+                  {/* Sample builder interface */}
+                  <div className="bg-white rounded-lg shadow-sm border p-6 space-y-8">
+                    <HeroSection />
+                    <ProductGrid />
+                    <FeatureHighlight />
+                    <NewsletterSignup />
+                  </div>
+                  
+                  <CartWidget itemCount={3} />
+                </div>
+              </div>
+            ) : (
+              // Render Builder content
+              <div className="h-full bg-white rounded-lg shadow-sm border overflow-hidden">
+                <BuilderComponent 
+                  model={currentModel} 
+                  content={builderContent || undefined}
+                  apiKey={process.env.NEXT_PUBLIC_BUILDER_API_KEY}
                 />
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </DashboardLayout>
   );

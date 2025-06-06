@@ -11,8 +11,12 @@
     "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
+    "@builder.io/react": "^8.2.3",
+    "@builder.io/sdk": "^6.0.9",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@plasmicapp/cli": "^0.1.338",
+    "@plasmicapp/loader-react": "^1.0.388",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.12",
     "@shadcn/ui": "^0.0.4",
