@@ -1,62 +1,84 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-interface ShippingMethod {
+interface CustomShippingOption {
   id: string;
   name: string;
+  price: number;
+  estimatedDays: number;
   description: string;
-  estimatedTime: string;
-  priceRange: string;
-  isActive: boolean;
 }
 
-const defaultShippingMethods: Record<string, ShippingMethod> = {
-  'standard': {
-    id: 'standard',
-    name: 'Standard Shipping',
-    description: 'Reliable delivery for everyday orders',
-    estimatedTime: '5-7 business days',
-    priceRange: '$5.99 - $12.99',
-    isActive: false
+interface ShippingConfiguration {
+  storeId: string;
+  customOptions: CustomShippingOption[];
+  fulfillmentProviders: string[];
+  lastUpdated: string;
+}
+
+// Platform-specific shipping definitions
+const platformShipping = {
+  amazon: {
+    name: 'Amazon Shipping',
+    methods: [
+      { id: 'amazon-standard', name: 'Amazon Standard', estimatedDays: '5-7 days' },
+      { id: 'amazon-prime', name: 'Amazon Prime', estimatedDays: '1-2 days' },
+      { id: 'amazon-same-day', name: 'Amazon Same Day', estimatedDays: 'Same day' }
+    ]
   },
-  'express': {
-    id: 'express',
-    name: 'Express Shipping',
-    description: 'Fast delivery for urgent orders',
-    estimatedTime: '2-3 business days',
-    priceRange: '$12.99 - $24.99',
-    isActive: false
+  alibaba: {
+    name: 'Alibaba Shipping',
+    methods: [
+      { id: 'alibaba-standard', name: 'Alibaba Standard', estimatedDays: '7-15 days' },
+      { id: 'alibaba-express', name: 'Alibaba Express', estimatedDays: '3-7 days' },
+      { id: 'alibaba-premium', name: 'Alibaba Premium', estimatedDays: '5-10 days' }
+    ]
   },
-  'overnight': {
-    id: 'overnight',
-    name: 'Overnight Delivery',
-    description: 'Next-day delivery for critical orders',
-    estimatedTime: '1 business day',
-    priceRange: '$24.99 - $49.99',
-    isActive: false
+  dstores: {
+    name: 'dStores Network',
+    methods: [
+      { id: 'dstores-standard', name: 'Network Standard', estimatedDays: '3-5 days' },
+      { id: 'dstores-express', name: 'Network Express', estimatedDays: '1-2 days' }
+    ]
+  }
+};
+
+// Fulfillment provider configurations
+const fulfillmentProviders = {
+  fedex: {
+    name: 'FedEx',
+    apiEndpoint: 'https://apis.fedex.com',
+    setupInstructions: 'Sign up for FedEx Developer account and obtain API credentials',
+    supportedServices: ['Ground', 'Express', 'International', 'Freight']
   },
-  'international': {
-    id: 'international',
-    name: 'International Shipping',
-    description: 'Worldwide delivery with customs handling',
-    estimatedTime: '7-21 business days',
-    priceRange: '$19.99 - $89.99',
-    isActive: false
+  ups: {
+    name: 'UPS',
+    apiEndpoint: 'https://developer.ups.com',
+    setupInstructions: 'Register UPS Developer Kit and get access key',
+    supportedServices: ['Ground', 'Air', 'International', 'Freight']
   },
-  'local-delivery': {
-    id: 'local-delivery',
-    name: 'Local Delivery',
-    description: 'Same-day delivery within local area',
-    estimatedTime: 'Same day / 2-4 hours',
-    priceRange: '$8.99 - $19.99',
-    isActive: false
+  usps: {
+    name: 'USPS',
+    apiEndpoint: 'https://www.usps.com/business/web-tools-apis',
+    setupInstructions: 'Register for USPS Web Tools API',
+    supportedServices: ['First-Class', 'Priority', 'Express', 'Media Mail']
   },
-  'free-shipping': {
-    id: 'free-shipping',
-    name: 'Free Shipping',
-    description: 'Free delivery for qualifying orders',
-    estimatedTime: '5-10 business days',
-    priceRange: 'Free (min. order $50)',
-    isActive: false
+  dhl: {
+    name: 'DHL',
+    apiEndpoint: 'https://developer.dhl.com',
+    setupInstructions: 'Create DHL Developer Portal account',
+    supportedServices: ['Express', 'International', 'eCommerce', 'Supply Chain']
+  },
+  shipstation: {
+    name: 'ShipStation',
+    apiEndpoint: 'https://www.shipstation.com/docs/api',
+    setupInstructions: 'Sign up for ShipStation account and generate API key',
+    supportedServices: ['All major carriers', 'International', 'Local delivery', 'Custom rates']
+  },
+  easypost: {
+    name: 'EasyPost',
+    apiEndpoint: 'https://www.easypost.com/docs/api',
+    setupInstructions: 'Create EasyPost account and obtain API keys',
+    supportedServices: ['100+ carriers', 'International', 'Last-mile delivery', 'Freight']
   }
 };
 
@@ -84,28 +106,35 @@ async function handleGetShipping(req: NextApiRequest, res: NextApiResponse) {
 
     // For products imported from external platforms, return their respective shipping
     if (productSource && ['amazon', 'alibaba', 'dstores'].includes(productSource as string)) {
+      const platformData = platformShipping[productSource as keyof typeof platformShipping];
       return res.status(200).json({
         shipping: {
           isManaged: false,
           platform: productSource,
-          message: `Shipping is handled by ${productSource}`,
-          methods: []
+          platformName: platformData.name,
+          message: `Shipping is handled by ${platformData.name}`,
+          methods: platformData.methods
         }
       });
     }
 
     // For manual products, return configured shipping methods
-    // In a real app, this would come from a database
-    // For now, we'll simulate this with localStorage-like behavior
-    const configuredMethods = getStoredShippingConfig(storeId as string);
+    const shippingConfig = getStoredShippingConfig(storeId as string);
     
     return res.status(200).json({
       shipping: {
         isManaged: true,
-        platform: 'manual',
+        platform: 'store',
         message: 'Shipping managed by store',
-        methods: configuredMethods
-      }
+        customOptions: shippingConfig.customOptions,
+        fulfillmentProviders: shippingConfig.fulfillmentProviders.map(providerId => ({
+          id: providerId,
+          name: fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]?.name || providerId,
+          ...fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]
+        }))
+      },
+      customOptions: shippingConfig.customOptions,
+      fulfillmentProviders: shippingConfig.fulfillmentProviders
     });
 
   } catch (error) {
@@ -117,33 +146,56 @@ async function handleGetShipping(req: NextApiRequest, res: NextApiResponse) {
 async function handleUpdateShipping(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { storeId } = req.query;
-    const { shippingMethods } = req.body;
+    const { customOptions = [], fulfillmentProviders: providers = [] } = req.body;
 
-    if (!Array.isArray(shippingMethods)) {
-      return res.status(400).json({ error: 'shippingMethods must be an array' });
+    // Validate custom options
+    if (!Array.isArray(customOptions)) {
+      return res.status(400).json({ error: 'customOptions must be an array' });
     }
 
-    // Validate that all provided methods exist
-    const invalidMethods = shippingMethods.filter(methodId => !defaultShippingMethods[methodId]);
-    if (invalidMethods.length > 0) {
+    // Validate fulfillment providers
+    if (!Array.isArray(providers)) {
+      return res.status(400).json({ error: 'fulfillmentProviders must be an array' });
+    }
+
+    // Validate custom shipping options structure
+    for (const option of customOptions) {
+      if (!option.name || typeof option.price !== 'number' || typeof option.estimatedDays !== 'number') {
+        return res.status(400).json({ 
+          error: 'Each custom option must have name, price (number), and estimatedDays (number)' 
+        });
+      }
+    }
+
+    // Validate fulfillment providers exist
+    const invalidProviders = providers.filter(providerId => !fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]);
+    if (invalidProviders.length > 0) {
       return res.status(400).json({ 
-        error: `Invalid shipping methods: ${invalidMethods.join(', ')}` 
+        error: `Invalid fulfillment providers: ${invalidProviders.join(', ')}` 
       });
     }
 
-    // Update shipping configuration
-    const updatedMethods = Object.keys(defaultShippingMethods).map(methodId => ({
-      ...defaultShippingMethods[methodId],
-      isActive: shippingMethods.includes(methodId)
-    }));
+    // Create shipping configuration
+    const shippingConfig: ShippingConfiguration = {
+      storeId: storeId as string,
+      customOptions,
+      fulfillmentProviders: providers,
+      lastUpdated: new Date().toISOString()
+    };
 
     // Store configuration (in a real app, this would go to a database)
-    storeShippingConfig(storeId as string, updatedMethods);
+    storeShippingConfig(storeId as string, shippingConfig);
 
     return res.status(200).json({
       success: true,
       message: 'Shipping configuration updated successfully',
-      methods: updatedMethods.filter(method => method.isActive)
+      configuration: shippingConfig,
+      integrationInstructions: providers.map(providerId => ({
+        provider: providerId,
+        name: fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]?.name,
+        setupInstructions: fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]?.setupInstructions,
+        apiEndpoint: fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]?.apiEndpoint
+      }))
     });
 
   } catch (error) {
@@ -153,25 +205,25 @@ async function handleUpdateShipping(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // Simulate storage functions (in a real app, these would interact with a database)
-function getStoredShippingConfig(storeId: string): ShippingMethod[] {
+let shippingConfigurations: Record<string, ShippingConfiguration> = {};
+
+function getStoredShippingConfig(storeId: string): ShippingConfiguration {
   // This would normally come from a database
-  // For demo purposes, we'll return a default configuration
-  try {
-    // In a real implementation, you'd query your database here
-    // For now, we'll simulate with some default active methods
-    return Object.values(defaultShippingMethods).filter(method => 
-      ['standard', 'express'].includes(method.id)
-    ).map(method => ({ ...method, isActive: true }));
-  } catch (error) {
-    return [];
-  }
+  // For demo purposes, we'll return stored configuration or defaults
+  return shippingConfigurations[storeId] || {
+    storeId,
+    customOptions: [],
+    fulfillmentProviders: [],
+    lastUpdated: new Date().toISOString()
+  };
 }
 
-function storeShippingConfig(storeId: string, methods: ShippingMethod[]): void {
+function storeShippingConfig(storeId: string, config: ShippingConfiguration): void {
   // This would normally save to a database
-  // For demo purposes, we'll just log it
-  console.log(`Storing shipping config for store ${storeId}:`, methods);
+  // For demo purposes, we'll store in memory
+  shippingConfigurations[storeId] = config;
+  console.log(`Stored shipping config for store ${storeId}:`, config);
 }
 
 // Export types for use in other files
-export type { ShippingMethod }; 
+export type { CustomShippingOption, ShippingConfiguration }; 

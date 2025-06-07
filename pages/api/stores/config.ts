@@ -6,9 +6,10 @@ interface ShippingOption {
   description: string;
   price: number;
   estimatedDays: string;
-  type: 'standard' | 'express' | 'overnight' | 'free' | 'local-delivery' | 'international';
+  type: 'custom' | 'fulfillment' | 'platform';
   isManual: boolean;
   platform?: string;
+  provider?: string;
 }
 
 interface PaymentMethod {
@@ -40,90 +41,220 @@ interface StoreConfig {
   };
 }
 
-// Default shipping options mapping
-const shippingMethodsMap: Record<string, Omit<ShippingOption, 'isManual' | 'platform'>> = {
-  'standard': {
-    id: 'standard',
-    name: 'Standard Shipping',
-    description: 'Delivery in 5-7 business days',
-    price: 9.99,
-    estimatedDays: '5-7 days',
-    type: 'standard'
-  },
-  'express': {
-    id: 'express',
-    name: 'Express Shipping',
-    description: 'Delivery in 2-3 business days',
-    price: 19.99,
-    estimatedDays: '2-3 days',
-    type: 'express'
-  },
-  'overnight': {
-    id: 'overnight',
-    name: 'Overnight Delivery',
-    description: 'Next business day delivery',
-    price: 29.99,
-    estimatedDays: '1 day',
-    type: 'overnight'
-  },
-  'international': {
-    id: 'international',
-    name: 'International Shipping',
-    description: 'Worldwide delivery with customs handling',
-    price: 24.99,
-    estimatedDays: '7-21 days',
-    type: 'international'
-  },
-  'local-delivery': {
-    id: 'local-delivery',
-    name: 'Local Delivery',
-    description: 'Same-day delivery within local area',
-    price: 12.99,
-    estimatedDays: 'Same day',
-    type: 'local-delivery'
-  },
-  'free-shipping': {
-    id: 'free-shipping',
-    name: 'Free Shipping',
-    description: 'Free delivery on orders over $50',
-    price: 0,
-    estimatedDays: '5-10 days',
-    type: 'free'
-  }
+// Platform-specific shipping info
+const platformShipping: Record<string, ShippingOption[]> = {
+  'amazon': [
+    {
+      id: 'amazon-standard',
+      name: 'Amazon Standard',
+      description: 'Standard Amazon shipping',
+      price: 0,
+      estimatedDays: '5-7 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'amazon'
+    },
+    {
+      id: 'amazon-prime',
+      name: 'Amazon Prime',
+      description: 'Fast delivery with Prime benefits',
+      price: 0,
+      estimatedDays: '1-2 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'amazon'
+    },
+    {
+      id: 'amazon-same-day',
+      name: 'Amazon Same Day',
+      description: 'Same day delivery in select areas',
+      price: 4.99,
+      estimatedDays: 'Same day',
+      type: 'platform',
+      isManual: false,
+      platform: 'amazon'
+    }
+  ],
+  'alibaba': [
+    {
+      id: 'alibaba-standard',
+      name: 'Alibaba Standard',
+      description: 'Standard international shipping',
+      price: 15.99,
+      estimatedDays: '7-15 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'alibaba'
+    },
+    {
+      id: 'alibaba-express',
+      name: 'Alibaba Express',
+      description: 'Faster international delivery',
+      price: 25.99,
+      estimatedDays: '3-7 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'alibaba'
+    },
+    {
+      id: 'alibaba-premium',
+      name: 'Alibaba Premium',
+      description: 'Premium shipping with tracking',
+      price: 35.99,
+      estimatedDays: '5-10 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'alibaba'
+    }
+  ],
+  'dstores': [
+    {
+      id: 'dstores-standard',
+      name: 'Network Standard',
+      description: 'Standard dStores network shipping',
+      price: 8.99,
+      estimatedDays: '3-5 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'dstores'
+    },
+    {
+      id: 'dstores-express',
+      name: 'Network Express',
+      description: 'Express delivery via dStores network',
+      price: 15.99,
+      estimatedDays: '1-2 days',
+      type: 'platform',
+      isManual: false,
+      platform: 'dstores'
+    }
+  ]
 };
 
-// Platform-specific shipping info
-const platformShipping: Record<string, ShippingOption> = {
-  'amazon': {
-    id: 'amazon-prime',
-    name: 'Amazon Prime Shipping',
-    description: 'Handled by Amazon with Prime benefits',
-    price: 0,
-    estimatedDays: '1-2 days',
-    type: 'express',
-    isManual: false,
-    platform: 'amazon'
-  },
-  'alibaba': {
-    id: 'alibaba-shipping',
-    name: 'Alibaba Global Shipping',
-    description: 'International shipping via Alibaba',
-    price: 15.99,
-    estimatedDays: '15-30 days',
-    type: 'international',
-    isManual: false,
-    platform: 'alibaba'
-  },
-  'dstores': {
-    id: 'dstores-shipping',
-    name: 'Dstores Network Shipping',
-    description: 'Shipping via Dstores network',
-    price: 8.99,
-    estimatedDays: '3-5 days',
-    type: 'standard',
-    isManual: false,
-    platform: 'dstores'
-  }
+// Fulfillment provider shipping estimates
+const fulfillmentProviderShipping: Record<string, ShippingOption[]> = {
+  'fedex': [
+    {
+      id: 'fedex-ground',
+      name: 'FedEx Ground',
+      description: 'Reliable ground shipping',
+      price: 12.99,
+      estimatedDays: '1-5 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'fedex'
+    },
+    {
+      id: 'fedex-express',
+      name: 'FedEx Express',
+      description: 'Fast overnight delivery',
+      price: 24.99,
+      estimatedDays: '1-2 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'fedex'
+    }
+  ],
+  'ups': [
+    {
+      id: 'ups-ground',
+      name: 'UPS Ground',
+      description: 'Economical ground delivery',
+      price: 11.99,
+      estimatedDays: '1-5 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'ups'
+    },
+    {
+      id: 'ups-air',
+      name: 'UPS Next Day Air',
+      description: 'Next business day delivery',
+      price: 29.99,
+      estimatedDays: '1 day',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'ups'
+    }
+  ],
+  'usps': [
+    {
+      id: 'usps-priority',
+      name: 'USPS Priority Mail',
+      description: 'Fast, reliable postal service',
+      price: 8.99,
+      estimatedDays: '1-3 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'usps'
+    },
+    {
+      id: 'usps-express',
+      name: 'USPS Express',
+      description: 'Overnight delivery guarantee',
+      price: 22.99,
+      estimatedDays: '1 day',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'usps'
+    }
+  ],
+  'dhl': [
+    {
+      id: 'dhl-express',
+      name: 'DHL Express',
+      description: 'International express delivery',
+      price: 35.99,
+      estimatedDays: '1-3 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'dhl'
+    }
+  ],
+  'shipstation': [
+    {
+      id: 'shipstation-economy',
+      name: 'Economy Shipping',
+      description: 'Cost-effective multi-carrier',
+      price: 7.99,
+      estimatedDays: '3-7 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'shipstation'
+    },
+    {
+      id: 'shipstation-priority',
+      name: 'Priority Shipping',
+      description: 'Fast multi-carrier delivery',
+      price: 16.99,
+      estimatedDays: '1-3 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'shipstation'
+    }
+  ],
+  'easypost': [
+    {
+      id: 'easypost-best-rate',
+      name: 'Best Rate',
+      description: 'Automatically selects cheapest option',
+      price: 9.99,
+      estimatedDays: '3-5 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'easypost'
+    },
+    {
+      id: 'easypost-fastest',
+      name: 'Fastest Delivery',
+      description: 'Automatically selects fastest option',
+      price: 19.99,
+      estimatedDays: '1-2 days',
+      type: 'fulfillment',
+      isManual: true,
+      provider: 'easypost'
+    }
+  ]
 };
 
 // Mock store configuration - in a real app, this would come from a database
@@ -177,39 +308,47 @@ const defaultStoreConfig: Omit<StoreConfig, 'shippingOptions'> = {
   }
 };
 
-async function getConfiguredShippingMethods(storeId: string): Promise<string[]> {
-  // In a real app, this would query the database for the store's configured shipping methods
-  // For demo purposes, we'll simulate this with localStorage-like behavior
+async function getConfiguredShippingOptions(storeId: string): Promise<{ customOptions: any[], fulfillmentProviders: string[] }> {
   try {
     // Try to get from shipping configuration API
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/shipping?storeId=${storeId}`, {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/shipping?storeId=${storeId}`, {
       method: 'GET',
     });
     
     if (response.ok) {
       const data = await response.json();
-      return data.shipping?.methods?.map((method: any) => method.id) || [];
+      return {
+        customOptions: data.customOptions || [],
+        fulfillmentProviders: data.fulfillmentProviders || []
+      };
     }
   } catch (error) {
-    console.error('Error fetching configured shipping methods:', error);
+    console.error('Error fetching configured shipping options:', error);
   }
   
-  // Fallback to default methods
-  return ['standard', 'express'];
+  // Fallback to empty configuration
+  return {
+    customOptions: [],
+    fulfillmentProviders: []
+  };
 }
 
 async function getCartProductSources(storeId: string): Promise<string[]> {
-  // In a real app, this would check the current cart contents
-  // For demo purposes, we'll return common sources
   try {
     // Try to get current cart or recent products
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/products?storeId=${storeId}`, {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/products?storeId=${storeId}`, {
       method: 'GET',
     });
     
     if (response.ok) {
-      const products = await response.json();
-      const sources = [...new Set(products.map((p: any) => p.source || 'manual'))];
+      const data = await response.json();
+      const products = data.products || [];
+      const sources = [...new Set(products.map((p: any) => {
+        const source = p.source || p.metadata?.source;
+        return source || 'manual';
+      }))];
       return sources;
     }
   } catch (error) {
@@ -228,8 +367,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { storeId = '1', cartProducts } = req.query;
     
-    // Get configured shipping methods for manual products
-    const configuredMethods = await getConfiguredShippingMethods(storeId as string);
+    // Get configured shipping options for manual products
+    const { customOptions, fulfillmentProviders } = await getConfiguredShippingOptions(storeId as string);
     
     // Get product sources (manual vs imported)
     let productSources: string[] = ['manual']; // Default
@@ -247,15 +386,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Build shipping options based on product sources
     const shippingOptions: ShippingOption[] = [];
     
-    // Add manual shipping options if there are manual products
+    // Add custom shipping options if there are manual products
     const hasManualProducts = productSources.includes('manual') || productSources.includes('seed');
-    if (hasManualProducts && configuredMethods.length > 0) {
-      configuredMethods.forEach(methodId => {
-        if (shippingMethodsMap[methodId]) {
-          shippingOptions.push({
-            ...shippingMethodsMap[methodId],
-            isManual: true
-          });
+    if (hasManualProducts && customOptions.length > 0) {
+      customOptions.forEach((option: any) => {
+        shippingOptions.push({
+          id: option.id,
+          name: option.name,
+          description: option.description || `Delivery in ${option.estimatedDays} business days`,
+          price: option.price,
+          estimatedDays: `${option.estimatedDays} business days`,
+          type: 'custom',
+          isManual: true
+        });
+      });
+    }
+    
+    // Add fulfillment provider shipping options for manual products
+    if (hasManualProducts && fulfillmentProviders.length > 0) {
+      fulfillmentProviders.forEach((providerId: string) => {
+        const providerOptions = fulfillmentProviderShipping[providerId];
+        if (providerOptions) {
+          shippingOptions.push(...providerOptions);
         }
       });
     }
@@ -263,16 +415,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Add platform-specific shipping for imported products
     productSources.forEach(source => {
       if (platformShipping[source]) {
-        shippingOptions.push(platformShipping[source]);
+        shippingOptions.push(...platformShipping[source]);
       }
     });
     
-    // If no shipping options configured yet, provide defaults for manual products
+    // If no shipping options configured yet, provide a basic default for manual products
     if (shippingOptions.length === 0 && hasManualProducts) {
-      shippingOptions.push(
-        { ...shippingMethodsMap.standard, isManual: true },
-        { ...shippingMethodsMap.express, isManual: true }
-      );
+      shippingOptions.push({
+        id: 'default-standard',
+        name: 'Standard Shipping',
+        description: 'Standard delivery service',
+        price: 9.99,
+        estimatedDays: '5-7 business days',
+        type: 'custom',
+        isManual: true
+      });
     }
     
     const config: StoreConfig = {
