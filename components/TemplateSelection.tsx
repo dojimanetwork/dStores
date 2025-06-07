@@ -5,6 +5,57 @@ import { TEMPLATES, SAMPLE_PRODUCTS, DESIGN_TRENDS, ANIMATION_LEVELS } from './t
 import { EyeIcon, CheckCircleIcon, StarIcon } from '@heroicons/react/24/outline';
 import { useSetupCompletion } from '@/contexts/SetupCompletionContext';
 
+// Component for individual template image with loading state
+function TemplateImage({ template, onLoad }: { template: any; onLoad?: () => void }) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+    onLoad?.();
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setImageError(true);
+    setImageLoaded(true);
+    // Fallback to placeholder
+    e.currentTarget.src = `/api/placeholder/800/600?text=${encodeURIComponent(template.name + ' Template')}`;
+  };
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Loading Placeholder */}
+      {!imageLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <div className="text-gray-500 text-sm font-medium">Loading {template.name}...</div>
+          </div>
+        </div>
+      )}
+      
+      {/* Template Image */}
+      <img
+        src={template.previewImages.hero}
+        alt={`${template.name} template preview showing ${template.description}`}
+        className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
+          imageLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        loading="lazy"
+      />
+      
+      {/* Error State */}
+      {imageError && imageLoaded && (
+        <div className="absolute top-2 left-2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+          Preview generated
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TemplateSelection() {
   const router = useRouter();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -112,17 +163,13 @@ export default function TemplateSelection() {
               isSelectedTemplate(template.id) ? 'ring-2 ring-blue-500' : ''
             }`}
           >
-            {/* Template Image */}
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <img
-                src={template.previewImages.hero}
-                alt={template.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
+            {/* Template Image with Overlays */}
+            <div className="relative">
+              <TemplateImage template={template} />
               
               {/* Selected Badge */}
               {isSelectedTemplate(template.id) && (
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 z-10">
                   <div className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-medium">
                     <CheckCircleIcon className="w-3 h-3" />
                     Active
@@ -131,7 +178,7 @@ export default function TemplateSelection() {
               )}
 
               {/* Preview Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center z-10">
                 <button
                   onClick={() => handleTemplateSelect(template.id)}
                   className="opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-300 px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg flex items-center gap-2"
