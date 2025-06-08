@@ -3,8 +3,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface SetupCompletionState {
   buildWebsite: {
     completed: boolean;
+    method: 'template' | 'visual-builder' | 'ai-generated' | null;
     templateSelected: string | null;
     templateConfirmed: boolean;
+    buildMethod: string | null;
     completedAt: string | null;
   };
   addProducts: {
@@ -32,13 +34,14 @@ interface SetupCompletionState {
 
 interface SetupCompletionContextType {
   completionState: SetupCompletionState;
-  markBuildWebsiteComplete: (templateId: string) => void;
+  markBuildWebsiteComplete: (methodOrTemplateId: string, method?: 'template' | 'visual-builder' | 'ai-generated') => void;
   markAddProductsComplete: (productCount: number) => void;
   markConfigureShippingComplete: (methods: string[]) => void;
   markSetupPaymentsComplete: (methods: string[]) => void;
   markReviewDeployComplete: (deploymentUrl: string) => void;
   isStepCompleted: (step: 'buildWebsite' | 'addProducts' | 'configureShipping' | 'setupPayments' | 'reviewDeploy') => boolean;
   getCompletionPercentage: () => number;
+  getBuildMethod: () => string | null;
   resetCompletion: () => void;
   debugCompletion: () => void;
 }
@@ -46,8 +49,10 @@ interface SetupCompletionContextType {
 const defaultState: SetupCompletionState = {
   buildWebsite: {
     completed: false,
+    method: null,
     templateSelected: null,
     templateConfirmed: false,
+    buildMethod: null,
     completedAt: null,
   },
   addProducts: {
@@ -99,13 +104,36 @@ export function SetupCompletionProvider({ children }: { children: React.ReactNod
     localStorage.setItem('setupCompletion', JSON.stringify(completionState));
   }, [completionState]);
 
-  const markBuildWebsiteComplete = (templateId: string) => {
+  const markBuildWebsiteComplete = (methodOrTemplateId: string, method?: 'template' | 'visual-builder' | 'ai-generated') => {
+    // If method is not provided, try to infer from methodOrTemplateId
+    const buildMethod = method || (methodOrTemplateId.includes('template') ? 'template' : 'visual-builder');
+    
+    let buildMethodName = '';
+    let templateSelected = null;
+    
+    switch (buildMethod) {
+      case 'template':
+        buildMethodName = 'Template';
+        templateSelected = methodOrTemplateId;
+        break;
+      case 'visual-builder':
+        buildMethodName = 'Visual Builder';
+        break;
+      case 'ai-generated':
+        buildMethodName = 'AI Generated';
+        break;
+      default:
+        buildMethodName = 'Custom Build';
+    }
+    
     setCompletionState(prev => ({
       ...prev,
       buildWebsite: {
         completed: true,
-        templateSelected: templateId,
-        templateConfirmed: true,
+        method: buildMethod,
+        templateSelected,
+        templateConfirmed: buildMethod === 'template',
+        buildMethod: buildMethodName,
         completedAt: new Date().toISOString(),
       },
     }));
@@ -166,6 +194,10 @@ export function SetupCompletionProvider({ children }: { children: React.ReactNod
     return Math.round((completedSteps / steps.length) * 100);
   };
 
+  const getBuildMethod = (): string | null => {
+    return completionState.buildWebsite.buildMethod;
+  };
+
   const resetCompletion = () => {
     setCompletionState(defaultState);
   };
@@ -185,6 +217,7 @@ export function SetupCompletionProvider({ children }: { children: React.ReactNod
         markReviewDeployComplete,
         isStepCompleted,
         getCompletionPercentage,
+        getBuildMethod,
         resetCompletion,
         debugCompletion,
       }}

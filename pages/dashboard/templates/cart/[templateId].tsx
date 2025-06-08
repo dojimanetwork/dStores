@@ -33,6 +33,8 @@ interface ShippingOption {
   price: number;
   estimatedDays: string;
   type: string;
+  isManual: boolean;
+  platform?: string;
 }
 
 interface PaymentMethod {
@@ -127,7 +129,22 @@ export default function TemplateCartPage() {
 
   const fetchStoreConfig = async () => {
     try {
-      const response = await fetch('/api/stores/config?storeId=1');
+      // Get unique product sources from current cart
+      const productSources = [...new Set(cart.map(item => {
+        // Extract source from product or infer from ID
+        if ((item.product as any).source) {
+          return (item.product as any).source;
+        }
+        // Infer from ID patterns
+        const id = item.product.id.toString();
+        if (id.startsWith('amazon-')) return 'amazon';
+        if (id.startsWith('alibaba-')) return 'alibaba';
+        if (id.startsWith('dstores-')) return 'dstores';
+        return 'manual';
+      }))];
+
+      const cartProductsParam = encodeURIComponent(JSON.stringify(productSources));
+      const response = await fetch(`/api/stores/config?storeId=1&cartProducts=${cartProductsParam}`);
       if (!response.ok) {
         throw new Error('Failed to fetch store configuration');
       }
@@ -157,6 +174,13 @@ export default function TemplateCartPage() {
       localStorage.setItem(`cart_${templateId}_1`, JSON.stringify(cart));
     }
   }, [cart, templateId]);
+
+  // Refetch store config when cart contents change (to update shipping options)
+  useEffect(() => {
+    if (cart.length > 0 && storeConfig) {
+      fetchStoreConfig();
+    }
+  }, [cart.length]); // Only depend on cart length to avoid infinite loops
 
   const navigateToTemplate = (page?: string) => {
     if (page === 'products') {
@@ -497,34 +521,74 @@ export default function TemplateCartPage() {
                   {/* Shipping Options */}
                   <div className="mt-8">
                     <h3 className="text-lg font-semibold mb-4">Shipping Options</h3>
-                    <div className="space-y-3">
-                      {storeConfig?.shippingOptions.map((option) => (
-                        <label key={option.id} className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <input
-                            type="radio"
-                            name="shipping"
-                            value={option.id}
-                            checked={selectedShipping?.id === option.id}
-                            onChange={() => setSelectedShipping(option)}
-                            className="text-blue-600"
-                          />
-                          <div className="ml-4 flex-1">
-                            <div className="flex justify-between">
-                              <div>
-                                <div className="font-medium">{option.name}</div>
-                                <div className="text-gray-600 text-sm">{option.description}</div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-semibold">
-                                  {option.price === 0 ? 'Free' : `$${option.price.toFixed(2)}`}
+                    {storeConfig?.shippingOptions.length === 0 ? (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p className="text-yellow-800">
+                          No shipping options configured yet. Please configure shipping in your dashboard.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {storeConfig?.shippingOptions.map((option) => (
+                          <label key={option.id} className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input
+                              type="radio"
+                              name="shipping"
+                              value={option.id}
+                              checked={selectedShipping?.id === option.id}
+                              onChange={() => setSelectedShipping(option)}
+                              className="text-blue-600"
+                            />
+                            <div className="ml-4 flex-1">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className="font-medium">{option.name}</div>
+                                    {!option.isManual && option.platform && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {option.platform}
+                                      </span>
+                                    )}
+                                    {option.isManual && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        Store
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-gray-600 text-sm mt-1">{option.description}</div>
                                 </div>
-                                <div className="text-gray-600 text-sm">{option.estimatedDays}</div>
+                                <div className="text-right ml-4">
+                                  <div className="font-semibold">
+                                    {option.price === 0 ? 'Free' : `$${option.price.toFixed(2)}`}
+                                  </div>
+                                  <div className="text-gray-600 text-sm">{option.estimatedDays}</div>
+                                </div>
                               </div>
                             </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Shipping info notice */}
+                    {cart.some(item => {
+                      const source = (item.product as any).source || 'manual';
+                      return ['amazon', 'alibaba', 'dstores'].includes(source);
+                    }) && (
+                      <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex">
+                          <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Mixed Product Sources</p>
+                            <p className="text-sm text-blue-700 mt-1">
+                              Your cart contains products from different sources. Some items may ship separately with their respective platform's shipping options.
+                            </p>
                           </div>
-                        </label>
-                      ))}
-                    </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

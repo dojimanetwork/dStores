@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { XMarkIcon, EyeIcon, RocketLaunchIcon, StarIcon, PlayIcon, SparklesIcon, BoltIcon, CubeIcon, FireIcon, DevicePhoneMobileIcon, ComputerDesktopIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, EyeIcon, RocketLaunchIcon, StarIcon, SparklesIcon, BoltIcon, CubeIcon, FireIcon, DevicePhoneMobileIcon, ComputerDesktopIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
 import { DESIGN_TRENDS, ANIMATION_LEVELS } from './templatesData';
 
 interface TemplatePreviewModalProps {
@@ -10,6 +9,7 @@ interface TemplatePreviewModalProps {
   onClose: () => void;
   onConfirm: (templateId: string) => void;
   productCount: number;
+  isSelected: boolean;
 }
 
 export default function TemplatePreviewModal({
@@ -17,17 +17,16 @@ export default function TemplatePreviewModal({
   isOpen,
   onClose,
   onConfirm,
-  productCount
+  productCount,
+  isSelected
 }: TemplatePreviewModalProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setCurrentPage(0);
       setViewMode('desktop');
-      setIsPlaying(false);
     }
   }, [isOpen]);
 
@@ -38,16 +37,6 @@ export default function TemplatePreviewModal({
       case 'dynamic': return <CubeIcon className="w-4 h-4" />;
       case 'cinematic': return <FireIcon className="w-4 h-4" />;
       default: return <SparklesIcon className="w-4 h-4" />;
-    }
-  };
-
-  const getAnimationLevelColor = (level: string) => {
-    switch (level) {
-      case 'subtle': return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-      case 'moderate': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'dynamic': return 'text-purple-600 bg-purple-50 border-purple-200';
-      case 'cinematic': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
@@ -98,23 +87,13 @@ export default function TemplatePreviewModal({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-7xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
-                {/* Header with Glow Effect */}
+                {/* Header */}
                 <div 
                   className="relative px-8 py-6 text-white overflow-hidden"
                   style={{
                     background: `linear-gradient(135deg, ${template.colorScheme.primary} 0%, ${template.colorScheme.secondary === '#FFFFFF' ? template.colorScheme.accent : template.colorScheme.secondary} 100%)`
                   }}
                 >
-                  {/* Glow Effect */}
-                  {template.colorScheme.glow && (
-                    <div 
-                      className="absolute inset-0 opacity-30 blur-2xl"
-                      style={{
-                        background: `radial-gradient(circle at 30% 50%, ${template.colorScheme.glow}40 0%, transparent 50%)`
-                      }}
-                    />
-                  )}
-                  
                   <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div>
@@ -126,7 +105,7 @@ export default function TemplatePreviewModal({
                             <StarIcon className="w-5 h-5 text-yellow-400" />
                             <span className="font-medium">Award Winner</span>
                           </div>
-                          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border backdrop-blur-sm ${getAnimationLevelColor(template.animationLevel).replace('text-', 'text-white').replace('bg-', 'bg-white bg-opacity-20').replace('border-', 'border-white border-opacity-30')}`}>
+                          <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border backdrop-blur-sm bg-white bg-opacity-20 border-white border-opacity-30 text-white">
                             {getAnimationLevelIcon(template.animationLevel)}
                             {ANIMATION_LEVELS[template.animationLevel as keyof typeof ANIMATION_LEVELS]}
                           </div>
@@ -163,28 +142,15 @@ export default function TemplatePreviewModal({
                 </div>
 
                 <div className="flex h-[80vh]">
-                  {/* Sidebar */}
-                  <div className="w-80 border-r border-gray-200 bg-gray-50 overflow-y-auto">
+                  {/* Minimal Sidebar */}
+                  <div className="w-64 border-r border-gray-200 bg-gray-50 overflow-y-auto">
                     <div className="p-6">
-                      {/* Template Info */}
-                      <div className="mb-6">
-                        <h4 className="font-semibold text-gray-900 mb-3">About This Template</h4>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                          {template.description}
-                        </p>
-                        
+                      {/* Template Basic Info */}
+                      <div className="mb-8">
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">Designer</span>
-                            <span className="text-sm font-medium text-gray-900">{template.designer}</span>
-                          </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-500">Category</span>
                             <span className="text-sm font-medium text-gray-900">{template.category}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">Layout Type</span>
-                            <span className="text-sm font-medium text-gray-900 capitalize">{template.layout}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-500">Pages</span>
@@ -193,81 +159,9 @@ export default function TemplatePreviewModal({
                         </div>
                       </div>
 
-                      {/* Design Trends */}
-                      <div className="mb-6">
-                        <h4 className="font-semibold text-gray-900 mb-3">Design Trends</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {template.designTrends.map((trend: string) => (
-                            <span
-                              key={trend}
-                              className="px-3 py-1 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 text-xs rounded-lg font-medium border border-blue-100"
-                            >
-                              {DESIGN_TRENDS[trend as keyof typeof DESIGN_TRENDS]}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Features */}
-                      <div className="mb-6">
-                        <h4 className="font-semibold text-gray-900 mb-3">Key Features</h4>
-                        <div className="space-y-2">
-                          {template.features.map((feature: string, index: number) => (
-                            <div key={index} className="flex items-center gap-3">
-                              <div 
-                                className="w-2 h-2 rounded-full"
-                                style={{ backgroundColor: template.colorScheme.accent }}
-                              />
-                              <span className="text-sm text-gray-600">{feature}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Color Scheme */}
-                      <div className="mb-6">
-                        <h4 className="font-semibold text-gray-900 mb-3">Color Scheme</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-6 h-6 rounded-lg border border-gray-200 shadow-sm"
-                              style={{ backgroundColor: template.colorScheme.primary }}
-                            />
-                            <div>
-                              <div className="text-xs font-medium text-gray-900">Primary</div>
-                              <div className="text-xs text-gray-500">{template.colorScheme.primary}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-6 h-6 rounded-lg border border-gray-200 shadow-sm"
-                              style={{ backgroundColor: template.colorScheme.accent }}
-                            />
-                            <div>
-                              <div className="text-xs font-medium text-gray-900">Accent</div>
-                              <div className="text-xs text-gray-500">{template.colorScheme.accent}</div>
-                            </div>
-                          </div>
-                          {template.colorScheme.glow && (
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-6 h-6 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden"
-                                style={{ backgroundColor: template.colorScheme.glow }}
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse" />
-                              </div>
-                              <div>
-                                <div className="text-xs font-medium text-gray-900">Glow</div>
-                                <div className="text-xs text-gray-500">{template.colorScheme.glow}</div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
                       {/* Page Navigation */}
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">Pages ({template.pages.length})</h4>
+                        <h4 className="font-semibold text-gray-900 mb-4">Pages</h4>
                         <div className="space-y-2">
                           {template.pages.map((page: any, index: number) => (
                             <button
@@ -280,7 +174,6 @@ export default function TemplatePreviewModal({
                               }`}
                             >
                               <div className="font-medium text-sm">{page.label}</div>
-                              <div className="text-xs text-gray-500 mt-1">{page.key}</div>
                             </button>
                           ))}
                         </div>
@@ -318,16 +211,6 @@ export default function TemplatePreviewModal({
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                           
-                          {/* Glow Overlay */}
-                          {template.colorScheme.glow && (
-                            <div 
-                              className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"
-                              style={{
-                                background: `radial-gradient(circle at center, ${template.colorScheme.glow}40 0%, transparent 70%)`
-                              }}
-                            />
-                          )}
-                          
                           {/* Interactive Hotspots */}
                           {currentPageData.nav && (
                             <div className="absolute inset-0">
@@ -357,17 +240,6 @@ export default function TemplatePreviewModal({
                               ))}
                             </div>
                           )}
-                          
-                          {/* Play Demo Button */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                            <button
-                              onClick={() => setIsPlaying(!isPlaying)}
-                              className="px-6 py-3 bg-white bg-opacity-90 backdrop-blur-sm text-gray-900 rounded-full font-medium shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center gap-2 hover:scale-105"
-                            >
-                              <PlayIcon className="w-5 h-5" />
-                              {isPlaying ? 'Pause Demo' : 'Play Demo'}
-                            </button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -420,10 +292,15 @@ export default function TemplatePreviewModal({
                       )}
                       <button
                         onClick={() => onConfirm(template.id)}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                        className={`px-8 py-3 text-white rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 ${
+                          isSelected 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                        }`}
+                        disabled={isSelected}
                       >
                         <RocketLaunchIcon className="w-5 h-5" />
-                        Choose This Template
+                        {isSelected ? 'Template Selected' : 'Choose This Template'}
                       </button>
                     </div>
                   </div>

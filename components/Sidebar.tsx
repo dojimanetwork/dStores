@@ -9,7 +9,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onMobileClose }: SidebarProps) {
   const router = useRouter();
-  const { isStepCompleted } = useSetupCompletion();
+  const { isStepCompleted, getBuildMethod } = useSetupCompletion();
 
   // Setup Progress Steps (in order)
   const setupSteps = [
@@ -38,6 +38,7 @@ export default function Sidebar({ onMobileClose }: SidebarProps) {
     const IconComponent = item.icon;
     const isActive = router.pathname === item.href || router.pathname.startsWith(item.href);
     const isCompleted = isSetupStep ? isStepCompleted(item.completionKey) : false;
+    const buildMethod = item.completionKey === 'buildWebsite' ? getBuildMethod() : null;
     
     return (
       <div
@@ -86,7 +87,7 @@ export default function Sidebar({ onMobileClose }: SidebarProps) {
           <div className={`text-xs truncate transition-colors ${
             isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500'
           }`}>
-            {item.description}
+            {isCompleted && buildMethod ? `Built with ${buildMethod}` : item.description}
           </div>
         </div>
         {isActive && (

@@ -161,48 +161,50 @@ function DatabaseProductRow({
   }
 
   return (
-    <div className="bg-white p-4 border border-gray-200 rounded-lg flex items-center justify-between">
-      <div className="flex-1">
-        <div className="flex items-center space-x-3 mb-2">
-          <h4 className="font-medium text-gray-900">{product.name}</h4>
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-            product.status === 'active' ? 'bg-green-100 text-green-800' :
-            product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-            product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
-            'bg-red-100 text-red-800'
-          }`}>
-            {product.status === 'active' ? 'Active' :
-             product.status === 'draft' ? 'Draft' :
-             product.status === 'inactive' ? 'Inactive' :
-             'Out of Stock'}
-          </span>
+    <div className="bg-white p-3 border border-gray-200 rounded-lg">
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0 pr-3">
+          <div className="flex items-center space-x-2 mb-1">
+            <h4 className="font-medium text-gray-900 text-sm truncate">{product.name}</h4>
+            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+              product.status === 'active' ? 'bg-green-100 text-green-800' :
+              product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+              product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {product.status === 'active' ? 'Active' :
+               product.status === 'draft' ? 'Draft' :
+               product.status === 'inactive' ? 'Inactive' :
+               'Out of Stock'}
+            </span>
+          </div>
           {/* Source Badge */}
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getSourceBadgeColor(getProductSource(product))}`}>
+          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium mb-2 ${getSourceBadgeColor(getProductSource(product))}`}>
             {getSourceIcon(getProductSource(product))}
             <span className="ml-1">{getSourceLabel(getProductSource(product))}</span>
           </span>
-        </div>
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <span className="font-semibold text-green-600">${product.price.toFixed(2)}</span>
-          <span>Stock: {product.stock || 0}</span>
+          <div className="flex items-center space-x-3 text-xs text-gray-600">
+            <span className="font-semibold text-green-600">${product.price.toFixed(2)}</span>
+            <span>Stock: {product.stock || 0}</span>
+          </div>
           {product.description && (
-            <span className="truncate max-w-xs">{product.description}</span>
+            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{product.description}</p>
           )}
         </div>
-      </div>
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-sm font-medium rounded transition-colors"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onRemove(product.id)}
-          className="px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm font-medium rounded transition-colors"
-        >
-          Remove
-        </button>
+        <div className="flex flex-col space-y-1 flex-shrink-0">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-2 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-medium rounded transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onRemove(product.id)}
+            className="px-2 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs font-medium rounded transition-colors"
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1301,21 +1303,20 @@ export default function Products() {
           </div>
 
           {/* Sidebar - Right Side on Desktop, Stack on Mobile/Tablet */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1">
             {/* Mobile/Tablet: Show completion banner at top, Desktop: Show in sidebar */}
-            <div className="lg:sticky lg:top-6 space-y-6">
+            <div className="lg:sticky lg:top-6 space-y-4 max-h-screen lg:max-h-[calc(100vh-8rem)] overflow-hidden">
               {/* Completion Status Banner */}
               {isStepCompleted('addProducts') && (
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-start">
-                    <CheckCircleIcon className="w-6 h-6 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="text-lg font-semibold text-green-900 mb-1">
+                      <h3 className="text-base font-semibold text-green-900 mb-1">
                         Product Catalog Complete! ✅
                       </h3>
                       <p className="text-green-700 text-sm">
-                        You have {completionState.addProducts.productCount} product{completionState.addProducts.productCount !== 1 ? 's' : ''} ready for your store. 
-                        Your products will automatically appear in your selected template.
+                        You have {completionState.addProducts.productCount} product{completionState.addProducts.productCount !== 1 ? 's' : ''} ready for your store.
                       </p>
                     </div>
                   </div>
@@ -1324,9 +1325,9 @@ export default function Products() {
 
               {/* Database Products Summary - Compact Sidebar Version */}
               {databaseProducts.length > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg flex flex-col max-h-full">
                   {/* Header with Toggle */}
-                  <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center justify-between p-4 flex-shrink-0">
                     <div 
                       className="flex items-center cursor-pointer hover:text-blue-800 transition-colors flex-1"
                       onClick={() => setIsDatabaseProductsOpen(!isDatabaseProductsOpen)}
@@ -1353,10 +1354,10 @@ export default function Products() {
                     </div>
                   </div>
                   
-                  {/* Collapsible Database Products List */}
+                  {/* Collapsible Database Products List - Scrollable */}
                   {isDatabaseProductsOpen && (
-                    <div className="px-4 pb-4 space-y-2 border-t border-blue-200">
-                      <div className="pt-3 flex justify-end">
+                    <div className="border-t border-blue-200 flex-1 min-h-0">
+                      <div className="p-4 pb-2 flex justify-end border-b border-blue-200 bg-blue-50 flex-shrink-0">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1371,14 +1372,18 @@ export default function Products() {
                           Refresh
                         </button>
                       </div>
-                      {databaseProducts.map((product) => (
-                        <DatabaseProductRow 
-                          key={product.id} 
-                          product={product} 
-                          onUpdate={handleDatabaseProductUpdate}
-                          onRemove={handleDatabaseProductRemove}
-                        />
-                      ))}
+                      {/* Scrollable Product List */}
+                      <div className="overflow-y-auto max-h-96 lg:max-h-[60vh] p-4 space-y-3">
+                        {databaseProducts.map((product) => (
+                          <div key={product.id} className="text-sm">
+                            <DatabaseProductRow 
+                              product={product} 
+                              onUpdate={handleDatabaseProductUpdate}
+                              onRemove={handleDatabaseProductRemove}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

@@ -144,7 +144,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'nexus-futuristic',
     name: 'NEXUS - Futuristic Commerce',
     description: 'Award-winning futuristic template with sci-fi gaming UI aesthetics, holographic elements, and cinematic glow effects. Features advanced cursor interactions, smooth scroll animations, and immersive 3D-like depth.',
-    category: 'Tech & Electronics',
+    category: 'Tech',
     designer: 'Future Labs Design Studio',
     tags: ['futuristic', 'sci-fi', 'holographic', 'glow-effects', 'gaming-ui', 'premium'],
     features: ['Holographic Product Displays', 'Cinematic Scroll Animations', 'Gaming UI Elements', 'Glow & Light Effects', 'Advanced Cursor Interactions', '3D-Like Depth'],
@@ -160,16 +160,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['glow-effects', 'sci-fi-gaming-ui', 'holographic', 'advanced-animations'],
     animationLevel: 'cinematic',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=800&h=1200'
+      hero: '/api/template-preview/nexus-futuristic?view=hero',
+      desktop: '/api/template-preview/nexus-futuristic?view=desktop',
+      mobile: '/api/template-preview/nexus-futuristic?view=mobile',
+      structure: '/api/template-preview/nexus-futuristic?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'Futuristic Homepage',
-        img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=1200',
+        img: '/api/template-preview/nexus-futuristic?view=hero',
         alt: 'NEXUS Homepage - Futuristic design with holographic elements, glowing accents, and sci-fi gaming UI aesthetics',
         nav: [
           { label: 'Explore Products', target: 'products' },
@@ -180,7 +180,7 @@ export const TEMPLATES: TemplateDefinition[] = [
       {
         key: 'products',
         label: 'Holographic Catalog',
-        img: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=1200',
+        img: '/api/template-preview/nexus-futuristic?view=desktop',
         alt: 'Futuristic product catalog with holographic displays and glow effects',
         nav: [
           { label: 'Product Details', target: 'product-details' },
@@ -191,7 +191,7 @@ export const TEMPLATES: TemplateDefinition[] = [
       {
         key: 'product-details',
         label: 'Immersive Product View',
-        img: 'https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=800&h=1200',
+        img: '/api/template-preview/nexus-futuristic?view=mobile',
         alt: 'Cinematic product detail page with 3D-like presentation and gaming UI elements',
         nav: [
           { label: 'Add to Cart', target: 'cart' },
@@ -205,7 +205,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'lumina-glow',
     name: 'LUMINA - Luxury Glow',
     description: 'Premium luxury template with sophisticated glow effects, window shadow overlays, and off-white aesthetics. Features advanced light manipulation, organic shadows, and award-winning visual hierarchy.',
-    category: 'Fashion & Luxury',
+    category: 'Fashion',
     designer: 'Awwwards Studio Collective',
     tags: ['luxury', 'glow-effects', 'window-shadows', 'off-white', 'premium', 'organic'],
     features: ['Sophisticated Glow Effects', 'Window Shadow Overlays', 'Off-White Aesthetics', 'Organic Light Play', 'Premium Typography', 'Luxury Animations'],
@@ -221,16 +221,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['glow-effects', 'window-shadow-overlays', 'off-white-aesthetic', 'organic-shadows'],
     animationLevel: 'dynamic',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&h=1200'
+      hero: '/api/template-preview/lumina-glow?view=hero',
+      desktop: '/api/template-preview/lumina-glow?view=desktop',
+      mobile: '/api/template-preview/lumina-glow?view=mobile',
+      structure: '/api/template-preview/lumina-glow?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'Luxury Homepage',
-        img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=1200',
+        img: '/api/template-preview/lumina-glow?view=hero',
         alt: 'LUMINA Homepage - Luxury design with sophisticated glow effects and window shadow overlays',
         nav: [
           { label: 'Shop Collection', target: 'collection' },
@@ -241,7 +241,7 @@ export const TEMPLATES: TemplateDefinition[] = [
       {
         key: 'collection',
         label: 'Curated Collection',
-        img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1200',
+        img: '/api/template-preview/lumina-glow?view=desktop',
         alt: 'Luxury collection page with organic shadow overlays and premium glow effects',
         nav: [
           { label: 'Product Story', target: 'product-story' },
@@ -255,7 +255,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'velocity-interactive',
     name: 'VELOCITY - Interactive Experience',
     description: 'Cutting-edge template with Flash-era nostalgia meets modern tech. Features advanced scroll interactions, playful animations, cursor effects, and immersive storytelling elements.',
-    category: 'Creative & Agency',
+    category: 'Creative',
     designer: 'Interactive Motion Labs',
     tags: ['interactive', 'flash-nostalgia', 'scroll-animations', 'cursor-effects', 'storytelling', 'immersive'],
     features: ['Advanced Scroll Interactions', 'Flash-Era Nostalgia', 'Custom Cursor Effects', 'Immersive Storytelling', 'Playful Animations', 'Interactive Elements'],
@@ -271,16 +271,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['flash-era-nostalgia', 'advanced-scroll', 'cursor-effects', 'immersive-storytelling'],
     animationLevel: 'cinematic',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=1200'
+      hero: '/api/template-preview/velocity-interactive?view=hero',
+      desktop: '/api/template-preview/velocity-interactive?view=desktop',
+      mobile: '/api/template-preview/velocity-interactive?view=mobile',
+      structure: '/api/template-preview/velocity-interactive?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'Interactive Homepage',
-        img: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=1200',
+        img: '/api/template-preview/velocity-interactive?view=hero',
         alt: 'VELOCITY Homepage - Interactive experience with Flash-era nostalgia and modern animations',
         nav: [
           { label: 'Explore Story', target: 'story' },
@@ -294,7 +294,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'aurora-ai-art',
     name: 'AURORA - AI Art Gallery',
     description: 'Next-generation template showcasing AI-generated imagery with holographic effects, data visualization, and cutting-edge aesthetic. Perfect for tech-forward brands and digital art platforms.',
-    category: 'Digital Art & AI',
+    category: 'Digital',
     designer: 'AI Design Collective',
     tags: ['ai-generated', 'holographic', 'data-viz', 'cutting-edge', 'digital-art', 'tech-forward'],
     features: ['AI-Generated Imagery', 'Holographic Displays', 'Data Visualization', 'Tech-Forward Design', 'Digital Art Showcase', 'Innovative Layouts'],
@@ -310,16 +310,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['ai-generated-imagery', 'holographic', 'data-visualization', 'tech-forward'],
     animationLevel: 'dynamic',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=1200'
+      hero: '/api/template-preview/aurora-ai-art?view=hero',
+      desktop: '/api/template-preview/aurora-ai-art?view=desktop',
+      mobile: '/api/template-preview/aurora-ai-art?view=mobile',
+      structure: '/api/template-preview/aurora-ai-art?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'AI Art Homepage',
-        img: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=1200',
+        img: '/api/template-preview/aurora-ai-art?view=hero',
         alt: 'AURORA Homepage - AI-generated art gallery with holographic effects and data visualization',
         nav: [
           { label: 'AI Gallery', target: 'gallery' },
@@ -333,7 +333,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'zenith-minimal',
     name: 'ZENITH - Elevated Minimal',
     description: 'Award-winning minimalist template with sophisticated typography, subtle glow accents, and premium off-white aesthetics. Features clean brutalist elements with organic shadow overlays.',
-    category: 'Minimal & Clean',
+    category: 'Minimal',
     designer: 'Pentagram Studio',
     tags: ['minimal', 'brutalist', 'typography', 'off-white', 'clean', 'sophisticated'],
     features: ['Award-Winning Typography', 'Sophisticated Minimalism', 'Subtle Glow Accents', 'Brutalist Elements', 'Off-White Aesthetic', 'Premium Layout'],
@@ -349,16 +349,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['minimalism-brutalism', 'typography-focus', 'off-white-aesthetic', 'subtle-glow'],
     animationLevel: 'subtle',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1515378791036-0648a814c963?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=1200'
+      hero: '/api/template-preview/zenith-minimal?view=hero',
+      desktop: '/api/template-preview/zenith-minimal?view=desktop',
+      mobile: '/api/template-preview/zenith-minimal?view=mobile',
+      structure: '/api/template-preview/zenith-minimal?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'Minimal Homepage',
-        img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=1200',
+        img: '/api/template-preview/zenith-minimal?view=hero',
         alt: 'ZENITH Homepage - Elevated minimalist design with sophisticated typography and subtle glow accents',
         nav: [
           { label: 'Portfolio', target: 'portfolio' },
@@ -372,7 +372,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     id: 'prisma-3d-surreal',
     name: 'PRISMA - 3D Surreal',
     description: 'Groundbreaking surreal 3D template inspired by Salvador Dali with impossible geometries, mind-bending visuals, and avant-garde product presentations. Features cutting-edge WebGL effects.',
-    category: 'Art & Surreal',
+    category: 'Art',
     designer: 'Surreal Design Labs',
     tags: ['surreal', '3d', 'salvador-dali', 'webgl', 'impossible-geometry', 'avant-garde'],
     features: ['Surreal 3D Elements', 'Impossible Geometries', 'WebGL Effects', 'Avant-Garde Design', 'Mind-Bending Visuals', 'Artistic Product Display'],
@@ -388,16 +388,16 @@ export const TEMPLATES: TemplateDefinition[] = [
     designTrends: ['surrealism-3d', 'impossible-geometry', 'webgl-effects', 'avant-garde'],
     animationLevel: 'cinematic',
     previewImages: {
-      hero: 'https://images.unsplash.com/photo-1634912314704-c646c586b131?w=800&h=600',
-      desktop: 'https://images.unsplash.com/photo-1616628188859-7a09abb2c2e4?w=1200&h=800',
-      mobile: 'https://images.unsplash.com/photo-1626808642875-0aa545482dfb?w=400&h=800',
-      structure: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&h=1200'
+      hero: '/api/template-preview/prisma-3d-surreal?view=hero',
+      desktop: '/api/template-preview/prisma-3d-surreal?view=desktop',
+      mobile: '/api/template-preview/prisma-3d-surreal?view=mobile',
+      structure: '/api/template-preview/prisma-3d-surreal?view=structure'
     },
     pages: [
       {
         key: 'home',
         label: 'Surreal Homepage',
-        img: 'https://images.unsplash.com/photo-1634912314704-c646c586b131?w=800&h=1200',
+        img: '/api/template-preview/prisma-3d-surreal?view=hero',
         alt: 'PRISMA Homepage - Surreal 3D design with impossible geometries and mind-bending visuals',
         nav: [
           { label: 'Surreal Gallery', target: 'gallery' },

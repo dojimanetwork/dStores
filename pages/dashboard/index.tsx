@@ -27,40 +27,29 @@ export default function DashboardHome() {
 
   const dashboardCards = [
     {
-      title: 'Template Builder',
-      description: 'Choose from professionally designed templates and customize them to your needs',
+      title: 'Templates',
+      description: 'Choose from professionally designed templates and customize them to your brand',
       icon: '🎨',
       href: '/dashboard/build/templates',
+      category: 'Quick Start',
+      enabled: true
     },
     {
       title: 'Visual Editor',
-      description: 'Design your store with a drag-and-drop visual editor',
+      description: 'Design your store with Plasmic\'s powerful drag-and-drop visual editor',
       icon: '🎯',
-      href: '/dashboard/build/visual',
-    },
-    {
-      title: 'AI Generator',
-      description: 'Let AI create a custom design based on your brand and preferences',
-      icon: '🤖',
-      href: '/dashboard/build/ai-generate',
-    },
-    {
-      title: 'GrapesJS Editor',
-      description: 'Advanced web page builder with component-based editing',
-      icon: '🔧',
       href: '/dashboard/build/grapesjs',
+      category: 'Custom Build',
+      enabled: true
     },
     {
-      title: 'Builder.io',
-      description: 'Professional visual development platform for modern websites',
-      icon: '⚡',
-      href: '/dashboard/build/builderio',
-    },
-    {
-      title: 'Plasmic Studio',
-      description: 'No-code visual builder for React components and pages',
-      icon: '🎪',
-      href: '/dashboard/build/plasmic',
+      title: 'AI Builder',
+      description: 'Let AI create a custom design based on your brand and preferences (Coming Soon)',
+      icon: '🤖',
+      href: null,
+      category: 'AI Powered',
+      enabled: false,
+      comingSoon: true
     },
   ];
 
@@ -99,7 +88,9 @@ export default function DashboardHome() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Build Your Store</h2>
+          <p className="text-gray-600 mb-8">Choose your preferred method to create your online store</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Test Nexus Template Button */}
             <button
@@ -128,8 +119,16 @@ export default function DashboardHome() {
               <button
                 key={card.title}
                 type="button"
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-200 cursor-pointer group w-full text-left focus:outline-none"
+                className={`bg-white rounded-lg border border-gray-200 p-6 transition-all duration-200 w-full text-left focus:outline-none ${
+                  card.enabled 
+                    ? 'hover:shadow-lg hover:border-blue-300 cursor-pointer group' 
+                    : 'opacity-60 cursor-not-allowed'
+                }`}
                 onClick={() => {
+                  if (!card.enabled || !card.href) {
+                    return; // Do nothing for disabled options
+                  }
+                  
                   console.log('Card clicked:', card.href);
                   try {
                     if (router && typeof router.push === 'function') {
@@ -148,28 +147,76 @@ export default function DashboardHome() {
                 }}
                 tabIndex={0}
               >
-                <div className="text-3xl mb-4">{card.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-3xl">{card.icon}</span>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    card.comingSoon 
+                      ? 'bg-gray-100 text-gray-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {card.comingSoon ? 'Coming Soon' : card.category}
+                  </span>
+                </div>
+                <h3 className={`font-semibold text-gray-900 mb-2 ${
+                  card.enabled ? 'group-hover:text-blue-600' : ''
+                }`}>
                   {card.title}
                 </h3>
                 <p className="text-sm text-gray-600 mb-4">{card.description}</p>
-                <div className="flex items-center text-blue-600 font-medium text-sm group-hover:translate-x-1 transition-transform">
-                  Get Started
-                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <div className={`flex items-center font-medium text-sm transition-transform ${
+                  card.enabled 
+                    ? 'text-blue-600 group-hover:translate-x-1' 
+                    : 'text-gray-400'
+                }`}>
+                  {card.enabled ? 'Get Started' : 'Available Soon'}
+                  {card.enabled && (
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
                 </div>
                 {/* Fallback link for accessibility, visually hidden */}
-                <a
-                  href={card.href}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  style={{ display: 'none' }}
-                >
-                  {card.title}
-                </a>
+                {card.enabled && card.href && (
+                  <a
+                    href={card.href}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    style={{ display: 'none' }}
+                  >
+                    {card.title}
+                  </a>
+                )}
               </button>
             ))}
+          </div>
+          
+          {/* Helper text explaining the options */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="font-medium text-gray-900 mb-3">Which option should I choose?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🎨</span>
+                  <span className="font-medium text-gray-900">Templates</span>
+                </div>
+                <p className="text-gray-600">Perfect for getting started quickly with proven designs. Just customize colors, content, and images.</p>
+              </div>
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🎯</span>
+                  <span className="font-medium text-gray-900">Visual Editor</span>
+                </div>
+                <p className="text-gray-600">Best for custom designs. Drag and drop components to build exactly what you envision.</p>
+              </div>
+              <div>
+                <div className="flex items-center mb-2">
+                  <span className="text-lg mr-2">🤖</span>
+                  <span className="font-medium text-gray-900">AI Builder</span>
+                  <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">Coming Soon</span>
+                </div>
+                <p className="text-gray-600">Let AI do the heavy lifting. Describe your vision and get a custom design generated for you. Available in the next update.</p>
+              </div>
+            </div>
           </div>
         </div>
 
