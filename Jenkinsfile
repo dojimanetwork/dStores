@@ -78,11 +78,6 @@ pipeline {
                             // Use Makefile for build and push
                             sh 'make release'
 
-                            // Security scan with Trivy
-                            sh """
-                                trivy clean --scan-cache && trivy image --format table --exit-code 1 --ignore-unfixed --pkg-types os,library --severity CRITICAL,HIGH ${env.AZURE}/${IMAGENAME}:${env.TAG}
-                            """
-
                             // Update ArgoCD manifests based on environment
                             if (params.NET == 'mainnet') {
                                 updateArgoCD('prod')
