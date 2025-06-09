@@ -10,7 +10,12 @@ endif
 
 # Default to patch version increment if not specified
 INCREMENT_TYPE ?= patch
-VERSION=$(shell ./get_next_tag.sh ${INCREMENT_TYPE})
+
+# Ensure get_next_tag.sh is executable
+$(shell chmod +x ./get_next_tag.sh)
+
+# Get version with fallback
+VERSION=$(shell ./get_next_tag.sh ${INCREMENT_TYPE} 2>/dev/null || echo "0.0.1")
 TAG=$(shell date +%Y-%m-%d)
 DATE=$(shell date +%Y-%m-%d)
 
