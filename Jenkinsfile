@@ -9,9 +9,9 @@ pipeline {
         NODE_ENV = 'production'
     }
     parameters {
-        choice(name: 'BUILD_TYPE', choices: ['patch', 'minor', 'major'], description: 'Select version to build in develop')
-        choice(name: 'NET', choices: ['testnet', 'stagenet', 'mainnet'], description: 'Select net type to build')
-        choice(name: 'CLOUD', choices: ['GCP', 'AZURE', 'AWS'], description: 'Select cloud operator to push docker image')
+        choice(name: 'BUILD_TYPE', choices: ['patch', 'minor', 'major'], description: 'select version to build in develop')
+        choice(name: 'NET', choices: ['testnet', 'stagenet', 'mainnet'], description: 'select net type to build')
+        choice(name: 'CLOUD', choices: ['GCP', 'AZURE', 'AWS'], description: 'select cloud operator to push docker image')
     }
     stages {
         stage('GCP Release') {
@@ -20,24 +20,20 @@ pipeline {
             }
             environment {
                 INCREMENT_TYPE = "${params.BUILD_TYPE}"
-                TAG = "${params.NET}"
+                NET_TYPE = "${params.NET}"
                 GCR = "asia-south1-docker.pkg.dev/prod-dojima/${params.NET}"
             }
             steps {
                 script {
-                    withCredentials([
-                        sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
-                        string(credentialsId: 'gcloud-access-token', variable: 'GCLOUD_ACCESS_TOKEN'),
-                        string(credentialsId: 'ci-registry-user', variable: 'CI_REGISTRY_USER'),
-                        string(credentialsId: 'ci-registry', variable: 'CI_REGISTRY'),
-                        string(credentialsId: 'ci-pat', variable: 'CR_PAT')
-                    ]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
+                                      string(credentialsId: 'gcloud-access-token', variable: 'GCLOUD_ACCESS_TOKEN'),
+                                      string(credentialsId: 'ci-registry-user', variable: 'CI_REGISTRY_USER'),
+                                      string(credentialsId: 'ci-registry', variable: 'CI_REGISTRY'),
+                                      string(credentialsId: 'ci-pat', variable: 'CR_PAT')]) {
                         withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${env.SSH_KEY}"]) {
-                            echo "Selected action: ${INCREMENT_TYPE}, ${TAG}, ${GCR}"
+                            echo "Selected action: ${INCREMENT_TYPE}, ${NET_TYPE}, ${GCR}"
                             sh 'gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GCR}'
-                            
-                            // Use Makefile for build and push
-                            sh 'make docker-build docker-push'
+                            sh 'make release'
                         }
                     }
                 }
@@ -50,7 +46,7 @@ pipeline {
             }
             environment {
                 INCREMENT_TYPE = "${params.BUILD_TYPE}"
-                AZURE = "${params.NET}.azurecr.io"
+                NET_TYPE = "${params.NET}"
             }
             steps {
                 script {
@@ -65,26 +61,61 @@ pipeline {
                         string(credentialsId: 'DOCKER_HUB_CREDENTIALS_ID', variable: 'DOCKER_PASSWORD')
                     ]) {
                         withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${env.SSH_KEY}"]) {
-                            // Azure container registry login based on environment
+                            def azureRegistry = "${params.NET}.azurecr.io"
+                            def azureUsername = "mainnet"
+                            
                             if (params.NET == "stagenet") {
-                                sh 'echo $AZURE_STAGENET_ACCESS_TOKEN | docker login -u stagenet --password-stdin $AZURE'
+                                azureUsername = "stagenet"
+                                sh 'echo $AZURE_STAGENET_ACCESS_TOKEN | docker login -u stagenet --password-stdin ${azureRegistry}'
                             } else if (params.NET == "mainnet") {
-                                sh 'echo $AZURE_MAINNET_ACCESS_TOKEN | docker login -u mainnet --password-stdin $AZURE'
+                                azureUsername = "mainnet"
+                                sh 'echo $AZURE_MAINNET_ACCESS_TOKEN | docker login -u mainnet --password-stdin ${azureRegistry}'
                             } else if (params.NET == "testnet") {
-                                env.AZURE = "${params.NET}1.azurecr.io"
-                                sh 'echo $AZURE_TESTNET_ACCESS_TOKEN | docker login -u testnet1 --password-stdin $AZURE'
+                                azureRegistry = "${params.NET}1.azurecr.io"
+                                azureUsername = "testnet1"
+                                sh 'echo $AZURE_TESTNET_ACCESS_TOKEN | docker login -u testnet1 --password-stdin ${azureRegistry}'
                             }
 
-                            // Use Makefile for build and push
-                            sh 'make release'
+                            // Run the release
+                            sh "make azure-release AZURE=${azureRegistry} INCREMENT_TYPE=${params.BUILD_TYPE}"
 
-                            // Update ArgoCD manifests based on environment
+                            // Capture environment variables from Makefile
+                            def buildInfo = sh(script: "make print-vars INCREMENT_TYPE=${params.BUILD_TYPE}", returnStdout: true).trim().split('\n')
+                            def envVars = [:]
+                            buildInfo.each {
+                                def (key, value) = it.split('=')
+                                envVars[key.trim()] = value.trim()
+                            }
+
+                            // Set environment variables
+                            env.GITREF = envVars['GITREF']
+                            env.VERSION = envVars['VERSION']
+                            env.IMAGETAG = "${env.GITREF}_${env.VERSION}"
+
+                            echo "Captured GITREF: ${env.GITREF}"
+                            echo "Captured VERSION: ${env.VERSION}"
+                            echo "Image Tag: ${env.IMAGETAG}"
+
+                            // Get image digest
+                            def imageDigest = sh(
+                                script: "docker inspect --format='{{index .RepoDigests 0}}' ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG} | awk -F'@' '{print \$2}'",
+                                returnStdout: true
+                            ).trim().replaceAll(/^sha256:/, '')
+
+                            echo "Image Digest: ${imageDigest}"
+
+                            // Run security scan
+                            sh """
+                                trivy clean --scan-cache && trivy image --format table --exit-code 1 --ignore-unfixed --pkg-types os,library --severity CRITICAL,HIGH ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG}
+                            """
+
+                            // Update ArgoCD based on network type
                             if (params.NET == 'mainnet') {
-                                updateArgoCD('prod')
+                                updateArgoCD('prod', azureRegistry, env.IMAGETAG)
                             } else if (params.NET == 'testnet') {
-                                updateArgoCD('dev')
+                                updateArgoCD('dev', azureRegistry, env.IMAGETAG)
                             } else if (params.NET == 'stagenet') {
-                                updateArgoCD('staging')
+                                updateArgoCD('staging', azureRegistry, env.IMAGETAG)
                             }
                         }
                     }
@@ -94,7 +125,7 @@ pipeline {
     }
 }
 
-def updateArgoCD(String environment) {
+def updateArgoCD(String environment, String registry, String imageTag) {
     withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
         sh """
             cd ${WORKSPACE}
@@ -102,10 +133,10 @@ def updateArgoCD(String environment) {
                 rm -rf ArgoCD
             fi
             git clone https://${GIT_TOKEN}@github.com/dojimanetwork/ArgoCD.git
-            cd ArgoCD/apps/web3-stores/overlays/${environment}
-            /var/lib/jenkins/kustomize edit set image ${AZURE}/${IMAGENAME}:${TAG}
+            cd ArgoCD/apps/dojima-foundation/overlays/${environment}
+            /var/lib/jenkins/kustomize edit set image ${registry}/${IMAGENAME}:${imageTag}
             git add .
-            git commit -m "Update image ${AZURE}/${IMAGENAME} with ${TAG}"
+            git commit -m "Update image ${registry}/${IMAGENAME} with ${imageTag}"
             git push origin main
             cd ${WORKSPACE} && rm -r ArgoCD
         """
