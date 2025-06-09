@@ -120,7 +120,7 @@ async function handleGetShipping(req: NextApiRequest, res: NextApiResponse) {
 
     // For manual products, return configured shipping methods
     const shippingConfig = getStoredShippingConfig(storeId as string);
-    
+
     return res.status(200).json({
       shipping: {
         isManaged: true,
@@ -129,8 +129,8 @@ async function handleGetShipping(req: NextApiRequest, res: NextApiResponse) {
         customOptions: shippingConfig.customOptions,
         fulfillmentProviders: shippingConfig.fulfillmentProviders.map(providerId => ({
           id: providerId,
+          ...fulfillmentProviders[providerId as keyof typeof fulfillmentProviders],
           name: fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]?.name || providerId,
-          ...fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]
         }))
       },
       customOptions: shippingConfig.customOptions,
@@ -161,8 +161,8 @@ async function handleUpdateShipping(req: NextApiRequest, res: NextApiResponse) {
     // Validate custom shipping options structure
     for (const option of customOptions) {
       if (!option.name || typeof option.price !== 'number' || typeof option.estimatedDays !== 'number') {
-        return res.status(400).json({ 
-          error: 'Each custom option must have name, price (number), and estimatedDays (number)' 
+        return res.status(400).json({
+          error: 'Each custom option must have name, price (number), and estimatedDays (number)'
         });
       }
     }
@@ -170,8 +170,8 @@ async function handleUpdateShipping(req: NextApiRequest, res: NextApiResponse) {
     // Validate fulfillment providers exist
     const invalidProviders = providers.filter(providerId => !fulfillmentProviders[providerId as keyof typeof fulfillmentProviders]);
     if (invalidProviders.length > 0) {
-      return res.status(400).json({ 
-        error: `Invalid fulfillment providers: ${invalidProviders.join(', ')}` 
+      return res.status(400).json({
+        error: `Invalid fulfillment providers: ${invalidProviders.join(', ')}`
       });
     }
 

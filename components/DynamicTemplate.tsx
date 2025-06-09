@@ -62,7 +62,7 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
   useEffect(() => {
     const savedCart = localStorage.getItem(`cart_${templateId}_${storeId}`);
     const savedWishlist = localStorage.getItem(`wishlist_${templateId}_${storeId}`);
-    
+
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart));
@@ -92,10 +92,10 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
 
   useEffect(() => {
     fetchTemplateData();
-    
+
     // Set up polling for real-time updates
     const interval = setInterval(fetchTemplateData, 30000); // Update every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [templateId, storeId]);
 
@@ -118,7 +118,7 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
   // Enhanced cart management functions
   const handleAddToCart = (product: Product, quantity: number = 1, variant?: any) => {
     setCart(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => 
+      const existingItemIndex = prevCart.findIndex(item =>
         item.product.id === product.id &&
         JSON.stringify(item.selectedVariant) === JSON.stringify(variant)
       );
@@ -142,10 +142,10 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       return;
     }
 
-    setCart(prevCart => 
-      prevCart.map(item => 
-        item.product.id === productId && 
-        JSON.stringify(item.selectedVariant) === JSON.stringify(variant)
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.product.id === productId &&
+          JSON.stringify(item.selectedVariant) === JSON.stringify(variant)
           ? { ...item, quantity: newQuantity }
           : item
       )
@@ -153,9 +153,9 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
   };
 
   const handleRemoveFromCart = (productId: number, variant?: any) => {
-    setCart(prevCart => 
-      prevCart.filter(item => 
-        !(item.product.id === productId && 
+    setCart(prevCart =>
+      prevCart.filter(item =>
+        !(item.product.id === productId &&
           JSON.stringify(item.selectedVariant) === JSON.stringify(variant))
       )
     );
@@ -193,13 +193,13 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       router.push(`/dashboard/templates/products/${templateId}`);
       return;
     }
-    
+
     if (pageKey === 'cart') {
       // Navigate to dedicated cart page
       router.push(`/dashboard/templates/cart/${templateId}`);
       return;
     }
-    
+
     if (product) {
       setSelectedProduct(product);
     }
@@ -252,13 +252,13 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       // Simulate order processing
       setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const newOrderNumber = `ORD-${Date.now()}`;
       setOrderNumber(newOrderNumber);
       setOrderPlaced(true);
       setCart([]);
       setCurrentPage('order-success');
-      
+
       showToast('Order placed successfully!', 'success');
     } catch (error) {
       showToast('Failed to place order. Please try again.', 'error');
@@ -290,14 +290,14 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: '#dc2626', marginBottom: '16px', fontSize: '18px' }}>Error loading template</p>
           <p style={{ color: '#6b7280', marginBottom: '24px' }}>{error}</p>
-          <button 
+          <button
             onClick={fetchTemplateData}
-            style={{ 
-              padding: '12px 24px', 
-              backgroundColor: '#2563eb', 
-              color: 'white', 
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#2563eb',
+              color: 'white',
               border: 'none',
-              borderRadius: '8px', 
+              borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '16px'
             }}
@@ -314,14 +314,14 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: '#6b7280', fontSize: '18px' }}>No data available for template: {templateId}</p>
-          <button 
+          <button
             onClick={fetchTemplateData}
-            style={{ 
-              padding: '12px 24px', 
-              backgroundColor: '#2563eb', 
-              color: 'white', 
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#2563eb',
+              color: 'white',
               border: 'none',
-              borderRadius: '8px', 
+              borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '16px',
               marginTop: '16px'
@@ -379,7 +379,7 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       return <TechGadgetsTemplate {...templateProps} />;
     case 'modern-dropshipping':
       return <ModernDropshippingTemplate {...templateProps} />;
-    
+
     // New world-class templates
     case 'nexus-futuristic':
       return <NexusFuturisticTemplate {...templateProps} />;
@@ -393,7 +393,7 @@ export default function DynamicTemplate({ templateId, storeId = 1 }: DynamicTemp
       return <ZenithMinimalTemplate {...templateProps} />;
     case 'prisma-3d-surreal':
       return <PrismaSurrealTemplate {...templateProps} />;
-    
+
     default:
       return <DefaultTemplate {...templateProps} />;
   }
@@ -504,11 +504,11 @@ function AvendaSkincareTemplate(props: any) {
                 <span className="text-green-700">Healthy Skin</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Discover {data.totalProducts} premium skincare products with clean ingredients, 
+                Discover {data.totalProducts} premium skincare products with clean ingredients,
                 proven results, and personalized routines that work for your unique skin.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <button 
+                <button
                   onClick={() => handleNavClick('products')}
                   className="bg-green-700 text-white px-8 py-4 rounded-full font-semibold hover:bg-green-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
@@ -519,8 +519,8 @@ function AvendaSkincareTemplate(props: any) {
             <div className="relative">
               <div className="relative z-10">
                 {data.featuredProducts[0] && (
-                  <img 
-                    src={data.featuredProducts[0].image} 
+                  <img
+                    src={data.featuredProducts[0].image}
                     alt="Featured skincare product"
                     className="w-full max-w-md mx-auto rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-500"
                   />
@@ -543,13 +543,13 @@ function AvendaSkincareTemplate(props: any) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {data.products.slice(0, 6).map((product: any) => (
-                <div 
+                <div
                   key={product.id}
                   className="group cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
                 >
                   <div className="relative overflow-hidden rounded-t-2xl bg-gray-50">
-                    <img 
-                      src={product.image} 
+                    <img
+                      src={product.image}
                       alt={product.name}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -559,11 +559,10 @@ function AvendaSkincareTemplate(props: any) {
                           e.stopPropagation();
                           onAddToWishlist(product);
                         }}
-                        className={`p-2 rounded-full shadow-md transition-colors ${
-                          isInWishlist(product.id) 
-                            ? 'bg-red-500 text-white' 
-                            : 'bg-white text-gray-400 hover:text-red-500'
-                        }`}
+                        className={`p-2 rounded-full shadow-md transition-colors ${isInWishlist(product.id)
+                          ? 'bg-red-500 text-white'
+                          : 'bg-white text-gray-400 hover:text-red-500'
+                          }`}
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
@@ -572,7 +571,7 @@ function AvendaSkincareTemplate(props: any) {
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 
+                    <h3
                       className="font-semibold text-gray-900 mb-2 cursor-pointer hover:text-green-700 transition-colors"
                       onClick={() => handleNavClick('product-details', product)}
                     >
@@ -583,7 +582,7 @@ function AvendaSkincareTemplate(props: any) {
                       <span className="text-2xl font-bold text-gray-900">{product.formattedPrice}</span>
                     </div>
                     <div className="space-y-2">
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onAddToCart(product, 1);
@@ -593,7 +592,7 @@ function AvendaSkincareTemplate(props: any) {
                       >
                         Add to Cart
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleNavClick('product-details', product)}
                         className="w-full border border-green-700 text-green-700 py-3 rounded-full font-medium hover:bg-green-50 transition-colors"
                       >
@@ -605,7 +604,7 @@ function AvendaSkincareTemplate(props: any) {
               ))}
             </div>
             <div className="text-center mt-12">
-              <button 
+              <button
                 onClick={() => handleNavClick('products')}
                 className="bg-green-700 text-white px-8 py-4 rounded-full font-semibold hover:bg-green-800 transition-colors shadow-lg"
               >
@@ -624,13 +623,13 @@ function AvendaSkincareTemplate(props: any) {
         <h1 className="text-4xl font-bold text-gray-900 mb-8">All Products</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {data.products.map((product: any) => (
-            <div 
+            <div
               key={product.id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => handleNavClick('product-details', product)}
             >
-              <img 
-                src={product.image} 
+              <img
+                src={product.image}
                 alt={product.name}
                 className="w-full h-48 object-cover"
               />
@@ -639,7 +638,7 @@ function AvendaSkincareTemplate(props: any) {
                 <p className="text-gray-600 text-sm mb-4">{product.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-green-700">{product.formattedPrice}</span>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(product);
@@ -663,8 +662,8 @@ function AvendaSkincareTemplate(props: any) {
         {selectedProduct && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
-              <img 
-                src={selectedProduct.image} 
+              <img
+                src={selectedProduct.image}
                 alt={selectedProduct.name}
                 className="w-full rounded-lg"
               />
@@ -674,13 +673,13 @@ function AvendaSkincareTemplate(props: any) {
               <p className="text-gray-600 mb-6">{selectedProduct.description}</p>
               <div className="text-3xl font-bold text-green-700 mb-6">{selectedProduct.formattedPrice}</div>
               <div className="space-y-4">
-                <button 
+                <button
                   onClick={() => onAddToCart(selectedProduct)}
                   className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors"
                 >
                   Add to Cart
                 </button>
-                <button 
+                <button
                   onClick={() => handleNavClick('products')}
                   className="w-full border border-green-700 text-green-700 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors"
                 >
@@ -701,7 +700,7 @@ function AvendaSkincareTemplate(props: any) {
         {cart.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              {cart.map((item, index) => (
+              {cart.map((item: CartItem, index: number) => (
                 <div key={index} className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm mb-4">
                   <img src={item.product.image} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
@@ -737,7 +736,7 @@ function AvendaSkincareTemplate(props: any) {
                   <span>${cartTotal.toFixed(2)}</span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onStartCheckout}
                 className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors"
               >
@@ -748,7 +747,7 @@ function AvendaSkincareTemplate(props: any) {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">Your cart is empty</p>
-            <button 
+            <button
               onClick={() => handleNavClick('products')}
               className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors"
             >
@@ -768,7 +767,7 @@ function AvendaSkincareTemplate(props: any) {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
             <div className="space-y-2 mb-6">
-              {cart.map((item, index) => (
+              {cart.map((item: CartItem, index: number) => (
                 <div key={index} className="flex justify-between">
                   <span>{item.product.name} x {item.quantity}</span>
                   <span>${(item.product.price * item.quantity).toFixed(2)}</span>
@@ -779,7 +778,7 @@ function AvendaSkincareTemplate(props: any) {
                 <span>${cartTotal.toFixed(2)}</span>
               </div>
             </div>
-            <button 
+            <button
               onClick={onPlaceOrder}
               className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors"
             >
@@ -797,11 +796,11 @@ function AvendaSkincareTemplate(props: any) {
         <h1 className="text-4xl font-bold text-gray-900 mb-8">About Avenda</h1>
         <div className="max-w-4xl mx-auto">
           <p className="text-lg text-gray-600 mb-6">
-            At Avenda, we believe that healthy, radiant skin is the foundation of confidence. 
+            At Avenda, we believe that healthy, radiant skin is the foundation of confidence.
             Our mission is to provide clean, effective skincare solutions that work for all skin types.
           </p>
           <p className="text-lg text-gray-600">
-            Founded by dermatologists and skincare experts, we use only the finest natural ingredients 
+            Founded by dermatologists and skincare experts, we use only the finest natural ingredients
             combined with cutting-edge science to create products that deliver visible results.
           </p>
         </div>
@@ -821,28 +820,28 @@ function AvendaSkincareTemplate(props: any) {
               </div>
               <span className="text-xl font-bold text-gray-900">Avenda</span>
             </div>
-            
+
             <nav className="hidden md:flex items-center space-x-8">
-              <button 
+              <button
                 onClick={() => handleNavClick('home')}
                 className={`text-gray-700 hover:text-green-700 font-medium transition-colors ${currentPage === 'home' ? 'text-green-700 border-b-2 border-green-700' : ''}`}
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick('products')}
                 className={`text-gray-700 hover:text-green-700 font-medium transition-colors ${currentPage === 'products' ? 'text-green-700 border-b-2 border-green-700' : ''}`}
               >
                 Shop
               </button>
-              <button 
+              <button
                 onClick={() => handleNavClick('about')}
                 className={`text-gray-700 hover:text-green-700 font-medium transition-colors ${currentPage === 'about' ? 'text-green-700 border-b-2 border-green-700' : ''}`}
               >
                 About
               </button>
             </nav>
-            
+
             <div className="flex items-center space-x-4">
               {/* Wishlist */}
               <button className="relative p-2 text-gray-700 hover:text-green-700 transition-colors">
@@ -855,10 +854,10 @@ function AvendaSkincareTemplate(props: any) {
                   </span>
                 )}
               </button>
-              
+
               {/* Cart */}
               <div className="relative">
-                <button 
+                <button
                   onClick={() => handleNavClick('cart')}
                   className="relative p-2 text-gray-700 hover:text-green-700 transition-colors"
                 >
@@ -879,7 +878,7 @@ function AvendaSkincareTemplate(props: any) {
 
       {/* Page Content */}
       {renderPage()}
-      
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16">
         <div className="container mx-auto px-4">
@@ -906,7 +905,7 @@ function AvendaSkincareTemplate(props: any) {
 // Placeholder components for other templates
 function BellaFashionTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Bella Fashion...</div>
   </div>;
@@ -917,7 +916,7 @@ function BellaFashionTemplate(props: any) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Bella Fashion</h1>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
@@ -933,13 +932,13 @@ function BellaFashionTemplate(props: any) {
           </div>
         </div>
       </header>
-      
+
       <main className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-4xl font-bold text-center mb-12">Fashion Collection</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {data.products.map((product: any) => (
             <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                 onClick={() => onProductClick(product)}>
+              onClick={() => onProductClick(product)}>
               <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
               <div className="p-4">
                 <h3 className="font-semibold mb-2">{product.name}</h3>
@@ -947,7 +946,7 @@ function BellaFashionTemplate(props: any) {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-gray-900">${product.price}</span>
                   <button onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                          className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors">
+                    className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors">
                     Add to Cart
                   </button>
                 </div>
@@ -962,7 +961,7 @@ function BellaFashionTemplate(props: any) {
 
 function MinimalZenTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-white flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Minimal Zen...</div>
   </div>;
@@ -973,7 +972,7 @@ function MinimalZenTemplate(props: any) {
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-light">Minimal Zen</h1>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-gray-800 hover:text-black transition-colors"
             >
@@ -989,7 +988,7 @@ function MinimalZenTemplate(props: any) {
           </div>
         </div>
       </header>
-      
+
       <main className="max-w-6xl mx-auto px-6 py-20">
         <h2 className="text-4xl font-light text-center mb-16">Collection</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
@@ -1004,7 +1003,7 @@ function MinimalZenTemplate(props: any) {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-light">${product.price}</span>
                   <button onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                          className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors">
+                    className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors">
                     Add
                   </button>
                 </div>
@@ -1019,7 +1018,7 @@ function MinimalZenTemplate(props: any) {
 
 function ProStoreMarketplaceTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Pro Store...</div>
   </div>;
@@ -1030,7 +1029,7 @@ function ProStoreMarketplaceTemplate(props: any) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Pro Store</h1>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-white hover:text-blue-200 transition-colors"
             >
@@ -1046,13 +1045,13 @@ function ProStoreMarketplaceTemplate(props: any) {
           </div>
         </div>
       </header>
-      
+
       <main className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-4xl font-bold text-center mb-12">Professional Marketplace</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {data.products.map((product: any) => (
             <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
-                 onClick={() => onProductClick(product)}>
+              onClick={() => onProductClick(product)}>
               <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-t-lg" />
               <div className="p-4">
                 <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
@@ -1060,7 +1059,7 @@ function ProStoreMarketplaceTemplate(props: any) {
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-blue-600">${product.price}</span>
                   <button onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                          className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                     Add to Cart
                   </button>
                 </div>
@@ -1075,7 +1074,7 @@ function ProStoreMarketplaceTemplate(props: any) {
 
 function TechGadgetsTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-900 flex items-center justify-center">
     <div className="text-blue-400 text-xl">Loading Tech Gadgets...</div>
   </div>;
@@ -1086,7 +1085,7 @@ function TechGadgetsTemplate(props: any) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-blue-400">TechGadgets</h1>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-blue-400 hover:text-blue-300 transition-colors"
             >
@@ -1102,13 +1101,13 @@ function TechGadgetsTemplate(props: any) {
           </div>
         </div>
       </header>
-      
+
       <main className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-4xl font-bold text-center mb-12 text-blue-400">Latest Tech</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {data.products.map((product: any) => (
             <div key={product.id} className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors cursor-pointer"
-                 onClick={() => onProductClick(product)}>
+              onClick={() => onProductClick(product)}>
               <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
               <div className="p-6">
                 <h3 className="font-semibold mb-2 text-white">{product.name}</h3>
@@ -1116,7 +1115,7 @@ function TechGadgetsTemplate(props: any) {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-blue-400">${product.price}</span>
                   <button onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                     Buy Now
                   </button>
                 </div>
@@ -1131,7 +1130,7 @@ function TechGadgetsTemplate(props: any) {
 
 function ModernDropshippingTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-white flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Modern Store...</div>
   </div>;
@@ -1142,7 +1141,7 @@ function ModernDropshippingTemplate(props: any) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Modern Store</h1>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
@@ -1158,7 +1157,7 @@ function ModernDropshippingTemplate(props: any) {
           </div>
         </div>
       </header>
-      
+
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">Featured Products</h2>
@@ -1169,8 +1168,8 @@ function ModernDropshippingTemplate(props: any) {
             <div key={product.id} className="group cursor-pointer" onClick={() => onProductClick(product)}>
               <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={product.image} 
+                  <img
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -1178,10 +1177,10 @@ function ModernDropshippingTemplate(props: any) {
                 <div className="p-6">
                   <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-gray-900">${product.price}</span>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onAddToCart(product);
@@ -1204,9 +1203,9 @@ function ModernDropshippingTemplate(props: any) {
 // NEXUS - Futuristic Commerce Template
 function NexusFuturisticTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   // console.log('NexusFuturisticTemplate rendering with data:', data);
-  
+
   if (!data) return (
     <div style={{ minHeight: '100vh', backgroundColor: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
@@ -1220,78 +1219,78 @@ function NexusFuturisticTemplate(props: any) {
     <div style={{ minHeight: '100vh', backgroundColor: 'black', color: 'white', position: 'relative', overflow: 'hidden' }}>
       {/* Futuristic Background Effects */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 1 }}>
-        <div style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          background: 'linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(0,0,0,1) 50%, rgba(255,0,255,0.1) 100%)' 
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(0,0,0,1) 50%, rgba(255,0,255,0.1) 100%)'
         }}></div>
-        <div style={{ 
-          position: 'absolute', 
-          top: '25%', 
-          left: '25%', 
-          width: '256px', 
-          height: '256px', 
-          background: 'radial-gradient(circle, rgba(0,255,255,0.2) 0%, transparent 70%)', 
+        <div style={{
+          position: 'absolute',
+          top: '25%',
+          left: '25%',
+          width: '256px',
+          height: '256px',
+          background: 'radial-gradient(circle, rgba(0,255,255,0.2) 0%, transparent 70%)',
           borderRadius: '50%',
           animation: 'pulse 3s infinite'
         }}></div>
-        <div style={{ 
-          position: 'absolute', 
-          bottom: '25%', 
-          right: '25%', 
-          width: '384px', 
-          height: '384px', 
-          background: 'radial-gradient(circle, rgba(255,0,255,0.2) 0%, transparent 70%)', 
+        <div style={{
+          position: 'absolute',
+          bottom: '25%',
+          right: '25%',
+          width: '384px',
+          height: '384px',
+          background: 'radial-gradient(circle, rgba(255,0,255,0.2) 0%, transparent 70%)',
           borderRadius: '50%',
           animation: 'pulse 3s infinite 1s'
         }}></div>
       </div>
 
       {/* Futuristic Header */}
-      <header style={{ 
-        position: 'relative', 
-        zIndex: 50, 
-        padding: '24px', 
+      <header style={{
+        position: 'relative',
+        zIndex: 50,
+        padding: '24px',
         borderBottom: '1px solid rgba(0,255,255,0.3)',
         backgroundColor: 'rgba(0,0,0,0.8)',
         backdropFilter: 'blur(10px)'
       }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ 
-              width: '40px', 
-              height: '40px', 
-              background: 'linear-gradient(45deg, #00ffff, #ff00ff)', 
-              borderRadius: '8px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               <div style={{ width: '24px', height: '24px', backgroundColor: 'black', borderRadius: '4px' }}></div>
             </div>
-            <h1 style={{ 
-              fontSize: '32px', 
-              fontWeight: 'bold', 
-              background: 'linear-gradient(45deg, #00ffff, #ff00ff)', 
-              WebkitBackgroundClip: 'text', 
+            <h1 style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+              WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               margin: 0
             }}>
               NEXUS
             </h1>
           </div>
-          
+
           <nav style={{ display: 'flex', gap: '32px' }}>
-            <button 
+            <button
               onClick={() => onNavigate('home')}
               style={{ color: '#00ffff', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
             >
               Home
             </button>
-            <button 
+            <button
               onClick={() => onNavigate('products')}
               style={{ color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
             >
@@ -1300,32 +1299,32 @@ function NexusFuturisticTemplate(props: any) {
           </nav>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
-              style={{ 
-                position: 'relative', 
-                padding: '8px', 
-                color: '#00ffff', 
-                background: 'none', 
-                border: 'none', 
+              style={{
+                position: 'relative',
+                padding: '8px',
+                color: '#00ffff',
+                background: 'none',
+                border: 'none',
                 cursor: 'pointer',
                 fontSize: '24px'
               }}
             >
               🛒
               {cartItemCount > 0 && (
-                <span style={{ 
-                  position: 'absolute', 
-                  top: '-4px', 
-                  right: '-4px', 
-                  backgroundColor: '#ff00ff', 
-                  color: 'white', 
-                  fontSize: '12px', 
-                  borderRadius: '50%', 
-                  width: '20px', 
-                  height: '20px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <span style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  backgroundColor: '#ff00ff',
+                  color: 'white',
+                  fontSize: '12px',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 'bold'
                 }}>
@@ -1340,36 +1339,36 @@ function NexusFuturisticTemplate(props: any) {
       {/* Hero Section */}
       <section style={{ position: 'relative', zIndex: 10, paddingTop: '80px', paddingBottom: '128px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
-          <h2 style={{ 
-            fontSize: '96px', 
-            fontWeight: 'bold', 
-            marginBottom: '24px', 
-            background: 'linear-gradient(45deg, #00ffff, white, #ff00ff)', 
-            WebkitBackgroundClip: 'text', 
+          <h2 style={{
+            fontSize: '96px',
+            fontWeight: 'bold',
+            marginBottom: '24px',
+            background: 'linear-gradient(45deg, #00ffff, white, #ff00ff)',
+            WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             lineHeight: '1.1',
             margin: '0 0 24px 0'
           }}>
             FUTURE
           </h2>
-          <p style={{ 
-            fontSize: '20px', 
-            color: '#d1d5db', 
-            marginBottom: '32px', 
-            maxWidth: '800px', 
+          <p style={{
+            fontSize: '20px',
+            color: '#d1d5db',
+            marginBottom: '32px',
+            maxWidth: '800px',
             margin: '0 auto 32px auto',
             lineHeight: '1.6'
           }}>
-            Experience the next generation of commerce with holographic displays, 
+            Experience the next generation of commerce with holographic displays,
             quantum-level security, and neural interface integration.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
-            style={{ 
-              padding: '16px 32px', 
-              background: 'linear-gradient(45deg, #00ffff, #ff00ff)', 
-              color: 'white', 
-              borderRadius: '25px', 
+            style={{
+              padding: '16px 32px',
+              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+              color: 'white',
+              borderRadius: '25px',
               fontWeight: 'bold',
               border: 'none',
               cursor: 'pointer',
@@ -1395,28 +1394,28 @@ function NexusFuturisticTemplate(props: any) {
       {data.featuredProducts && data.featuredProducts.length > 0 && (
         <section style={{ position: 'relative', zIndex: 10, padding: '80px 0' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>
-            <h3 style={{ 
-              fontSize: '48px', 
-              fontWeight: 'bold', 
-              textAlign: 'center', 
-              marginBottom: '64px', 
+            <h3 style={{
+              fontSize: '48px',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              marginBottom: '64px',
               color: '#00ffff',
               margin: '0 0 64px 0'
             }}>
               Featured Products
             </h3>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
               {data.featuredProducts.slice(0, 6).map((product: any) => (
-                <div 
+                <div
                   key={product.id}
-                  style={{ 
+                  style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, rgba(25,25,25,0.8) 0%, rgba(0,0,0,0.8) 100%)', 
+                    background: 'linear-gradient(135deg, rgba(25,25,25,0.8) 0%, rgba(0,0,0,0.8) 100%)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(0,255,255,0.3)', 
-                    borderRadius: '16px', 
-                    padding: '24px', 
+                    border: '1px solid rgba(0,255,255,0.3)',
+                    borderRadius: '16px',
+                    padding: '24px',
                     cursor: 'pointer',
                     transition: 'all 0.5s ease'
                   }}
@@ -1434,8 +1433,8 @@ function NexusFuturisticTemplate(props: any) {
                 >
                   <div style={{ position: 'relative', zIndex: 10 }}>
                     <div style={{ aspectRatio: '1', marginBottom: '16px', overflow: 'hidden', borderRadius: '12px', backgroundColor: '#1f2937' }}>
-                      <img 
-                        src={product.image || product.images?.[0]} 
+                      <img
+                        src={product.image || product.images?.[0]}
                         alt={product.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.7s ease' }}
                         onMouseOver={(e) => {
@@ -1446,27 +1445,27 @@ function NexusFuturisticTemplate(props: any) {
                         }}
                       />
                     </div>
-                    
+
                     <h4 style={{ fontSize: '20px', fontWeight: '600', color: 'white', marginBottom: '8px', margin: '0 0 8px 0' }}>
                       {product.name}
                     </h4>
                     <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px', lineHeight: '1.4', margin: '0 0 16px 0' }}>
                       {product.description.length > 80 ? `${product.description.substring(0, 80)}...` : product.description}
                     </p>
-                    
+
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#00ffff' }}>
                         ${product.price}
                       </span>
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onAddToCart(product);
                         }}
-                        style={{ 
-                          padding: '8px 16px', 
-                          background: 'linear-gradient(45deg, #00ffff, #ff00ff)', 
-                          color: 'white', 
+                        style={{
+                          padding: '8px 16px',
+                          background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+                          color: 'white',
                           borderRadius: '8px',
                           fontWeight: '500',
                           border: 'none',
@@ -1526,20 +1525,20 @@ function NexusFuturisticTemplate(props: any) {
       )}
 
       {/* Footer */}
-      <footer style={{ 
-        position: 'relative', 
-        zIndex: 10, 
-        padding: '40px 0', 
-        borderTop: '1px solid rgba(0,255,255,0.3)', 
-        backgroundColor: 'rgba(0,0,0,0.8)' 
+      <footer style={{
+        position: 'relative',
+        zIndex: 10,
+        padding: '40px 0',
+        borderTop: '1px solid rgba(0,255,255,0.3)',
+        backgroundColor: 'rgba(0,0,0,0.8)'
       }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
           <div style={{ marginBottom: '16px' }}>
-            <h1 style={{ 
-              fontSize: '24px', 
-              fontWeight: 'bold', 
-              background: 'linear-gradient(45deg, #00ffff, #ff00ff)', 
-              WebkitBackgroundClip: 'text', 
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+              WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               margin: 0
             }}>
@@ -1569,7 +1568,7 @@ function NexusFuturisticTemplate(props: any) {
 // LUMINA - Luxury Glow Template
 function LuminaGlowTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Lumina...</div>
   </div>;
@@ -1586,15 +1585,15 @@ function LuminaGlowTemplate(props: any) {
               </div>
               <h1 className="text-2xl font-bold text-gray-800">LUMINA</h1>
             </div>
-            
+
             <nav className="hidden md:flex space-x-8">
-              <button 
+              <button
                 onClick={() => onNavigate('home')}
                 className="text-gray-800 hover:text-amber-600 font-medium"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate('products')}
                 className="text-gray-600 hover:text-amber-600"
               >
@@ -1602,7 +1601,7 @@ function LuminaGlowTemplate(props: any) {
               </button>
             </nav>
 
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-gray-800 hover:text-amber-600"
             >
@@ -1630,10 +1629,10 @@ function LuminaGlowTemplate(props: any) {
             </span>
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Where luxury meets innovation. Each piece is meticulously crafted 
+            Where luxury meets innovation. Each piece is meticulously crafted
             with premium materials and uncompromising attention to detail.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
             className="px-8 py-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-amber-500/25 transition-all duration-300"
           >
@@ -1648,34 +1647,34 @@ function LuminaGlowTemplate(props: any) {
           <h3 className="text-4xl font-light text-center mb-16 text-gray-800">
             Featured Products
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {data.featuredProducts.slice(0, 6).map((product: any) => (
-              <div 
+              <div
                 key={product.id}
                 className="group cursor-pointer"
                 onClick={() => onProductClick(product)}
               >
                 <div className="relative mb-6">
                   <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-white shadow-lg">
-                    <img 
-                      src={product.image || product.images?.[0]} 
+                    <img
+                      src={product.image || product.images?.[0]}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
-                  
+
                   {/* Glow effect on hover */}
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
-                
+
                 <div className="text-center">
                   <h4 className="text-xl font-medium text-gray-800 mb-2">{product.name}</h4>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-light text-amber-600">${product.price}</span>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onAddToCart(product);
@@ -1698,7 +1697,7 @@ function LuminaGlowTemplate(props: any) {
 // VELOCITY - Interactive Experience Template
 function VelocityInteractiveTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
     <div className="text-gray-800 text-xl animate-pulse">Loading Velocity...</div>
   </div>;
@@ -1717,15 +1716,15 @@ function VelocityInteractiveTemplate(props: any) {
                 VELOCITY
               </h1>
             </div>
-            
+
             <nav className="hidden md:flex space-x-8">
-              <button 
+              <button
                 onClick={() => onNavigate('home')}
                 className="text-red-600 hover:text-red-800 font-medium transition-colors"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate('products')}
                 className="text-gray-400 hover:text-red-600 transition-colors"
               >
@@ -1733,7 +1732,7 @@ function VelocityInteractiveTemplate(props: any) {
               </button>
             </nav>
 
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-red-600 hover:text-red-800 transition-colors"
             >
@@ -1757,16 +1756,16 @@ function VelocityInteractiveTemplate(props: any) {
           <div className="absolute bottom-20 right-10 w-48 h-48 bg-pink-300 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-300 rounded-full blur-xl animate-pulse delay-1000"></div>
         </div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
             VELOCITY
           </h2>
           <p className="text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Experience interactive commerce like never before. 
+            Experience interactive commerce like never before.
             Flash-era nostalgia meets cutting-edge technology.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
             className="px-10 py-5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full font-black text-lg hover:scale-110 hover:rotate-3 transition-all duration-300 shadow-xl"
           >
@@ -1781,36 +1780,36 @@ function VelocityInteractiveTemplate(props: any) {
           <h3 className="text-5xl font-black text-center mb-16 bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
             Interactive Collection
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {data.featuredProducts.slice(0, 6).map((product: any, index: number) => (
-              <div 
+              <div
                 key={product.id}
                 className="group relative bg-gradient-to-br from-pink-900/50 to-purple-900/50 backdrop-blur-sm border border-red-500/30 rounded-3xl p-6 hover:border-red-500 transition-all duration-500 cursor-pointer transform hover:scale-105 hover:rotate-1"
-                style={{ 
+                style={{
                   transform: `rotate(${(index % 3 - 1) * 2}deg)`,
                   animationDelay: `${index * 0.2}s`
                 }}
                 onClick={() => onProductClick(product)}
               >
                 <div className="aspect-square mb-4 overflow-hidden rounded-2xl transform hover:skew-x-2 transition-transform duration-700">
-                  <img 
-                    src={product.image || product.images?.[0]} 
+                  <img
+                    src={product.image || product.images?.[0]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 group-hover:hue-rotate-30 transition-all duration-700"
                   />
                 </div>
-                
+
                 <h4 className="text-xl font-bold text-white mb-2 transform group-hover:skew-x-1 transition-transform">
                   {product.name}
                 </h4>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-black text-red-500 transform group-hover:scale-110 transition-transform">
                     ${product.price}
                   </span>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(product);
@@ -1832,7 +1831,7 @@ function VelocityInteractiveTemplate(props: any) {
 // AURORA - AI Art Gallery Template
 function AuroraAIArtTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gray-900 flex items-center justify-center">
     <div className="text-purple-400 text-xl">Initializing Aurora AI...</div>
   </div>;
@@ -1851,15 +1850,15 @@ function AuroraAIArtTemplate(props: any) {
                 AURORA
               </h1>
             </div>
-            
+
             <nav className="hidden md:flex space-x-8">
-              <button 
+              <button
                 onClick={() => onNavigate('home')}
                 className="text-purple-400 hover:text-white transition-colors"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate('products')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -1867,7 +1866,7 @@ function AuroraAIArtTemplate(props: any) {
               </button>
             </nav>
 
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-purple-400 hover:text-white transition-colors"
             >
@@ -1889,16 +1888,16 @@ function AuroraAIArtTemplate(props: any) {
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 blur-3xl"></div>
         </div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
             AI GALLERY
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Discover unique digital art powered by artificial intelligence. 
+            Discover unique digital art powered by artificial intelligence.
             Each piece is algorithmically generated and one-of-a-kind.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-semibold hover:scale-105 transition-transform duration-300 shadow-lg"
           >
@@ -1913,28 +1912,28 @@ function AuroraAIArtTemplate(props: any) {
           <h3 className="text-4xl font-bold text-center mb-16 text-purple-400">
             AI-Generated Collection
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {data.featuredProducts.slice(0, 6).map((product: any) => (
-              <div 
+              <div
                 key={product.id}
                 className="group relative bg-gradient-to-br from-purple-900/50 to-indigo-900/50 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-6 hover:border-purple-400 transition-all duration-500 cursor-pointer"
                 onClick={() => onProductClick(product)}
               >
                 <div className="aspect-square mb-4 overflow-hidden rounded-xl">
-                  <img 
-                    src={product.image || product.images?.[0]} 
+                  <img
+                    src={product.image || product.images?.[0]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-                
+
                 <h4 className="text-xl font-semibold text-white mb-2">{product.name}</h4>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-purple-400">${product.price}</span>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(product);
@@ -1956,7 +1955,7 @@ function AuroraAIArtTemplate(props: any) {
 // ZENITH - Elevated Minimal Template
 function ZenithMinimalTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-white flex items-center justify-center">
     <div className="text-gray-800 text-xl">Loading Zenith...</div>
   </div>;
@@ -1968,15 +1967,15 @@ function ZenithMinimalTemplate(props: any) {
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-light tracking-wide">ZENITH</h1>
-            
+
             <nav className="hidden md:flex space-x-12">
-              <button 
+              <button
                 onClick={() => onNavigate('home')}
                 className="text-gray-800 font-medium hover:text-black transition-colors"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate('products')}
                 className="text-gray-500 hover:text-gray-800 transition-colors"
               >
@@ -1984,7 +1983,7 @@ function ZenithMinimalTemplate(props: any) {
               </button>
             </nav>
 
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-gray-800 hover:text-black transition-colors"
             >
@@ -2010,10 +2009,10 @@ function ZenithMinimalTemplate(props: any) {
             <span className="font-black">More</span>
           </h2>
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Sophisticated minimalism meets premium quality. 
+            Sophisticated minimalism meets premium quality.
             Every element serves a purpose.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
             className="px-8 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors"
           >
@@ -2027,26 +2026,26 @@ function ZenithMinimalTemplate(props: any) {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
             {data.featuredProducts.slice(0, 6).map((product: any) => (
-              <div 
+              <div
                 key={product.id}
                 className="group cursor-pointer"
                 onClick={() => onProductClick(product)}
               >
                 <div className="aspect-[4/5] mb-6 overflow-hidden bg-gray-50">
-                  <img 
-                    src={product.image || product.images?.[0]} 
+                  <img
+                    src={product.image || product.images?.[0]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
-                
+
                 <div>
                   <h4 className="text-xl font-light mb-2">{product.name}</h4>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-light">${product.price}</span>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onAddToCart(product);
@@ -2069,7 +2068,7 @@ function ZenithMinimalTemplate(props: any) {
 // PRISMA - 3D Surreal Template
 function PrismaSurrealTemplate(props: any) {
   const { data, cart, onAddToCart, onProductClick, onNavigate, currentPage, cartItemCount } = props;
-  
+
   if (!data) return <div className="min-h-screen bg-gradient-to-br from-purple-900 to-pink-900 flex items-center justify-center">
     <div className="text-yellow-400 text-xl animate-pulse">Warping Reality...</div>
   </div>;
@@ -2088,15 +2087,15 @@ function PrismaSurrealTemplate(props: any) {
                 PRISMA
               </h1>
             </div>
-            
+
             <nav className="hidden md:flex space-x-8">
-              <button 
+              <button
                 onClick={() => onNavigate('home')}
                 className="text-yellow-400 hover:text-white transition-colors"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate('products')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -2104,7 +2103,7 @@ function PrismaSurrealTemplate(props: any) {
               </button>
             </nav>
 
-            <button 
+            <button
               onClick={() => onNavigate('cart')}
               className="relative p-2 text-yellow-400 hover:text-white transition-colors"
             >
@@ -2128,16 +2127,16 @@ function PrismaSurrealTemplate(props: any) {
           <div className="absolute bottom-20 right-10 w-60 h-60 bg-yellow-400/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-500/20 transform -translate-x-1/2 -translate-y-1/2 skew-x-12 blur-xl animate-pulse delay-1000"></div>
         </div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-pink-400 via-yellow-400 to-purple-400 bg-clip-text text-transparent transform skew-y-1">
             IMPOSSIBLE
           </h2>
           <p className="text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Welcome to the impossible marketplace where dreams become reality 
+            Welcome to the impossible marketplace where dreams become reality
             and geometry defies logic.
           </p>
-          <button 
+          <button
             onClick={() => onNavigate('products')}
             className="px-10 py-5 bg-gradient-to-r from-pink-500 to-yellow-400 text-purple-900 rounded-full font-black text-lg hover:scale-110 hover:rotate-3 transition-all duration-300 shadow-xl"
           >
@@ -2152,36 +2151,36 @@ function PrismaSurrealTemplate(props: any) {
           <h3 className="text-5xl font-black text-center mb-16 bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent transform skew-y-1">
             Impossible Objects
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {data.featuredProducts.slice(0, 6).map((product: any, index: number) => (
-              <div 
+              <div
                 key={product.id}
                 className="group relative bg-gradient-to-br from-pink-900/50 to-purple-900/50 backdrop-blur-sm border border-yellow-400/30 rounded-3xl p-6 hover:border-yellow-400 transition-all duration-500 cursor-pointer transform hover:scale-105 hover:rotate-1"
-                style={{ 
+                style={{
                   transform: `rotate(${(index % 3 - 1) * 2}deg)`,
                   animationDelay: `${index * 0.2}s`
                 }}
                 onClick={() => onProductClick(product)}
               >
                 <div className="aspect-square mb-4 overflow-hidden rounded-2xl transform hover:skew-x-2 transition-transform duration-700">
-                  <img 
-                    src={product.image || product.images?.[0]} 
+                  <img
+                    src={product.image || product.images?.[0]}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 group-hover:hue-rotate-30 transition-all duration-700"
                   />
                 </div>
-                
+
                 <h4 className="text-xl font-bold text-white mb-2 transform group-hover:skew-x-1 transition-transform">
                   {product.name}
                 </h4>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-black text-yellow-400 transform group-hover:scale-110 transition-transform">
                     ${product.price}
                   </span>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(product);

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useBuilderStore } from '@/stores/builderStore';
-import { 
-  ProductCard, 
-  ProductGrid, 
-  HeroSection, 
-  CartWidget, 
+import {
+  ProductCard,
+  ProductGrid,
+  HeroSection,
+  CartWidget,
   CategoryCard,
   NewsletterSignup,
   FeatureHighlight,
@@ -25,7 +25,18 @@ const COMPONENT_REGISTRY = {
 };
 
 // Sample navigation header
-const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, search, onSearch, onToggleSearch }) => {
+type StoreHeaderProps = {
+  theme: any;
+  onNavigate: (view: "home" | "products" | "about" | "contact" | "search" | "cart") => void;
+  currentView: string;
+  cart: { totalItems: number };
+  onToggleCart: () => void;
+  search: { isOpen: boolean };
+  onSearch: (query: string) => void;
+  onToggleSearch: () => void;
+};
+
+const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, search, onSearch, onToggleSearch }: StoreHeaderProps) => {
   const themeColors = theme?.colors || {
     background: '#ffffff',
     text: '#1f2937',
@@ -34,7 +45,7 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSearch(searchQuery);
     onNavigate('search');
@@ -53,7 +64,7 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
               dStores
             </button>
           </div>
-          
+
           <nav className="hidden md:flex space-x-8">
             {[
               { key: 'home', label: 'Home' },
@@ -63,19 +74,18 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
             ].map((item) => (
               <button
                 key={item.key}
-                onClick={() => onNavigate(item.key)}
-                className={`hover:opacity-80 transition-colors ${
-                  currentView === item.key ? 'font-semibold' : ''
-                }`}
-                style={{ 
-                  color: currentView === item.key ? themeColors.primary : themeColors.text 
+                onClick={() => onNavigate(item.key as "home" | "products" | "about" | "contact" | "search" | "cart")}
+                className={`hover:opacity-80 transition-colors ${currentView === item.key ? 'font-semibold' : ''
+                  }`}
+                style={{
+                  color: currentView === item.key ? themeColors.primary : themeColors.text
                 }}
               >
                 {item.label}
               </button>
             ))}
           </nav>
-          
+
           <div className="flex items-center space-x-4">
             {/* Search */}
             <form onSubmit={handleSearch} className="hidden sm:flex items-center">
@@ -98,9 +108,9 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
                 </button>
               </div>
             </form>
-            
+
             {/* Mobile search button */}
-            <button 
+            <button
               onClick={onToggleSearch}
               className="sm:hidden hover:opacity-80 transition-colors"
               style={{ color: themeColors.text }}
@@ -109,9 +119,9 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-            
+
             {/* Cart */}
-            <button 
+            <button
               onClick={onToggleCart}
               className="relative hover:opacity-80 transition-colors"
               style={{ color: themeColors.text }}
@@ -128,7 +138,7 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
           </div>
         </div>
       </div>
-      
+
       {/* Mobile search overlay */}
       {search.isOpen && (
         <div className="sm:hidden border-t border-gray-200 p-4">
@@ -154,7 +164,7 @@ const StoreHeader = ({ theme, onNavigate, currentView, cart, onToggleCart, searc
 };
 
 // Sample footer
-const StoreFooter = ({ theme }) => {
+const StoreFooter = ({ theme }: { theme: any }) => {
   const themeColors = theme?.colors || {
     background: '#111827',
     text: '#f9fafb'
@@ -195,7 +205,7 @@ const StoreFooter = ({ theme }) => {
                 <a key={social} href="#" className="text-gray-400 hover:text-white transition-colors">
                   <span className="sr-only">{social}</span>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </a>
               ))}
@@ -211,7 +221,7 @@ const StoreFooter = ({ theme }) => {
 };
 
 // Products Page Component
-const ProductsPage = ({ theme, products, onAddToCart }) => {
+const ProductsPage = ({ theme, products, onAddToCart }: { theme: any; products: any[]; onAddToCart: (product: any) => void }) => {
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -219,8 +229,8 @@ const ProductsPage = ({ theme, products, onAddToCart }) => {
   const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
 
   useEffect(() => {
-    let filtered = selectedCategory === 'all' 
-      ? products 
+    let filtered = selectedCategory === 'all'
+      ? products
       : products.filter(p => p.category === selectedCategory);
 
     // Sort products
@@ -244,7 +254,7 @@ const ProductsPage = ({ theme, products, onAddToCart }) => {
             Our Products
           </h1>
           <p className="text-gray-600 mb-6">Discover our complete collection of amazing products</p>
-          
+
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex items-center gap-2">
@@ -261,7 +271,7 @@ const ProductsPage = ({ theme, products, onAddToCart }) => {
                 ))}
               </select>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">Sort by:</label>
               <select
@@ -281,7 +291,7 @@ const ProductsPage = ({ theme, products, onAddToCart }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <div key={product.id} className="group">
-              <ProductCard 
+              <ProductCard
                 product={product}
                 theme={theme}
               />
@@ -306,21 +316,21 @@ const ProductsPage = ({ theme, products, onAddToCart }) => {
 };
 
 // About Page Component
-const AboutPage = ({ theme, storeInfo }) => (
+const AboutPage = ({ theme, storeInfo }: { theme: any; storeInfo: any }) => (
   <div className="py-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-6" style={{ color: theme.colors.text }}>
           About {storeInfo.name || 'Our Store'}
         </h1>
-        
+
         <div className="prose prose-lg">
           {storeInfo.description && (
             <p className="text-gray-600 mb-6">
               {storeInfo.description}
             </p>
           )}
-          
+
           <div className="grid md:grid-cols-2 gap-8 mt-8">
             <div>
               <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text }}>Our Mission</h3>
@@ -328,7 +338,7 @@ const AboutPage = ({ theme, storeInfo }) => (
                 To provide exceptional products and outstanding customer service while building lasting relationships with our community.
               </p>
             </div>
-            
+
             <div>
               <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text }}>Our Values</h3>
               <ul className="list-disc list-inside text-gray-600 space-y-2">
@@ -346,14 +356,14 @@ const AboutPage = ({ theme, storeInfo }) => (
 );
 
 // Contact Page Component
-const ContactPage = ({ theme, storeInfo }) => (
+const ContactPage = ({ theme, storeInfo }: { theme: any; storeInfo: any }) => (
   <div className="py-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-6" style={{ color: theme.colors.text }}>
           Contact Us
         </h1>
-        
+
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text }}>Get in Touch</h3>
@@ -364,14 +374,14 @@ const ContactPage = ({ theme, storeInfo }) => (
                 </svg>
                 <span className="text-gray-600">{storeInfo.email || 'contact@yourstore.com'}</span>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
                 <span className="text-gray-600">{storeInfo.phone || '+1 (555) 123-4567'}</span>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -381,7 +391,7 @@ const ContactPage = ({ theme, storeInfo }) => (
               </div>
             </div>
           </div>
-          
+
           <div>
             <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text }}>Send a Message</h3>
             <form className="space-y-4">
@@ -393,7 +403,7 @@ const ContactPage = ({ theme, storeInfo }) => (
                   placeholder="Your name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
@@ -402,7 +412,7 @@ const ContactPage = ({ theme, storeInfo }) => (
                   placeholder="your.email@example.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                 <textarea
@@ -411,7 +421,7 @@ const ContactPage = ({ theme, storeInfo }) => (
                   placeholder="Your message..."
                 />
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
@@ -427,23 +437,23 @@ const ContactPage = ({ theme, storeInfo }) => (
 );
 
 // Search Results Component
-const SearchPage = ({ theme, searchResults, searchQuery }) => (
+const SearchPage = ({ theme, searchResults, searchQuery }: { theme: any; searchResults: any[]; searchQuery: string }) => (
   <div className="py-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-bold mb-6" style={{ color: theme.colors.text }}>
         Search Results
       </h1>
-      
+
       {searchQuery && (
         <p className="text-gray-600 mb-6">
           Showing results for "{searchQuery}" ({searchResults.length} items found)
         </p>
       )}
-      
+
       {searchResults.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {searchResults.map((product) => (
-            <ProductCard 
+            <ProductCard
               key={product.id}
               product={product}
               theme={theme}
@@ -462,7 +472,7 @@ const SearchPage = ({ theme, searchResults, searchQuery }) => (
 );
 
 // Cart Sidebar Component
-const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveFromCart, onClearCart }) => {
+const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveFromCart, onClearCart }: { isOpen: boolean; onClose: () => void; cart: any; theme: any; onUpdateQuantity: (productId: string, quantity: number) => void; onRemoveFromCart: (productId: string) => void; onClearCart: () => void }) => {
   const themeColors = theme?.colors || {
     background: '#ffffff',
     text: '#1f2937',
@@ -474,7 +484,7 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-      
+
       <div className="fixed right-0 top-0 h-full w-96 max-w-full bg-white shadow-xl">
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -491,7 +501,7 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
               </svg>
             </button>
           </div>
-          
+
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-4">
             {cart.items.length === 0 ? (
@@ -503,10 +513,10 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
               </div>
             ) : (
               <div className="space-y-4">
-                {cart.items.map((item) => (
+                {cart.items.map((item: any) => (
                   <div key={item.id} className="flex gap-3 border-b pb-4">
-                    <img 
-                      src={item.image} 
+                    <img
+                      src={item.image}
                       alt={item.name}
                       className="w-16 h-16 object-cover rounded-md"
                     />
@@ -546,7 +556,7 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
               </div>
             )}
           </div>
-          
+
           {/* Footer */}
           {cart.items.length > 0 && (
             <div className="border-t p-4 space-y-4">
@@ -554,7 +564,7 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
                 <span>Total:</span>
                 <span style={{ color: themeColors.primary }}>${cart.totalPrice.toFixed(2)}</span>
               </div>
-              
+
               <div className="space-y-2">
                 <button
                   className="w-full py-3 text-white rounded-md hover:opacity-90 transition-colors"
@@ -577,11 +587,26 @@ const CartSidebar = ({ isOpen, onClose, cart, theme, onUpdateQuantity, onRemoveF
   );
 };
 
+interface PageComponent {
+  type: string;
+  id: string;
+  props?: any;
+}
+
+interface PageData {
+  components?: PageComponent[];
+  theme?: any;
+  meta?: {
+    title?: string;
+    description?: string;
+  };
+}
+
 export default function StorePreview() {
   const router = useRouter();
-  const { 
-    currentTheme, 
-    setProducts, 
+  const {
+    currentTheme,
+    setProducts,
     products,
     cart,
     search,
@@ -597,10 +622,10 @@ export default function StorePreview() {
     toggleSearch,
     setCurrentView
   } = useBuilderStore();
-  
-  const [pageData, setPageData] = useState(null);
+
+  const [pageData, setPageData] = useState<PageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const { page = 'home' } = router.query;
 
   useEffect(() => {
@@ -612,7 +637,7 @@ export default function StorePreview() {
           const pageData = JSON.parse(savedCurrentPage);
           setPageData(pageData);
         }
-        
+
         // Load store info from localStorage
         const savedStoreInfo = localStorage.getItem('storeInfo');
         if (savedStoreInfo) {
@@ -648,20 +673,20 @@ export default function StorePreview() {
     setIsLoading(false);
   }, [page, setProducts]);
 
-  const handleNavigate = (view) => {
+  const handleNavigate = (view: "home" | "products" | "about" | "contact" | "search" | "cart") => {
     setCurrentView(view);
   };
 
-  const handleSearch = (query) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
     performSearch();
   };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: any) => {
     addToCart({ ...product, quantity: 1 });
   };
 
-  const handleUpdateCartQuantity = (productId, quantity) => {
+  const handleUpdateCartQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
@@ -673,7 +698,7 @@ export default function StorePreview() {
     switch (currentView) {
       case 'products':
         return (
-          <ProductsPage 
+          <ProductsPage
             theme={theme}
             products={products}
             onAddToCart={handleAddToCart}
@@ -685,7 +710,7 @@ export default function StorePreview() {
         return <ContactPage theme={theme} storeInfo={storeInfo} />;
       case 'search':
         return (
-          <SearchPage 
+          <SearchPage
             theme={theme}
             searchResults={search.results}
             searchQuery={search.query}
@@ -698,9 +723,9 @@ export default function StorePreview() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="space-y-8">
                 {pageData.components.map((component) => {
-                  const Component = COMPONENT_REGISTRY[component.type];
+                  const Component = COMPONENT_REGISTRY[component.type as keyof typeof COMPONENT_REGISTRY];
                   return Component ? (
-                    <Component 
+                    <Component
                       key={component.id}
                       {...component.props}
                       theme={theme}
@@ -715,17 +740,17 @@ export default function StorePreview() {
           return (
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="space-y-12">
-                <HeroSection 
+                <HeroSection
                   title="Welcome to Your Custom Store"
                   subtitle="Built with dStores drag-and-drop builder - customize everything to match your brand"
                   buttonText="Start Shopping"
                   secondaryButtonText="Learn More"
                   theme={theme}
                 />
-                
+
                 {/* Category Grid */}
                 <div className="py-8">
-                  <h2 
+                  <h2
                     className="text-2xl font-bold mb-6"
                     style={{ color: theme.colors.text }}
                   >
@@ -742,8 +767,8 @@ export default function StorePreview() {
                     ))}
                   </div>
                 </div>
-                
-                <ProductGrid 
+
+                <ProductGrid
                   title="Featured Products"
                   columns={3}
                   showViewAll={true}
@@ -752,16 +777,16 @@ export default function StorePreview() {
                 />
 
                 <FeatureHighlight theme={theme} />
-                
-                <ProductGrid 
+
+                <ProductGrid
                   title="Best Sellers"
                   columns={4}
                   showViewAll={true}
                   showFromUserProducts={true}
                   theme={theme}
                 />
-                
-                <NewsletterSignup 
+
+                <NewsletterSignup
                   title="Get Exclusive Deals"
                   subtitle="Subscribe to our newsletter and be the first to know about sales and new arrivals"
                   backgroundColor="bg-gradient-to-r from-blue-50 to-indigo-50"
@@ -795,7 +820,7 @@ export default function StorePreview() {
 
       <ThemeProvider theme={theme}>
         <div className="min-h-screen" style={{ backgroundColor: theme.colors.background }}>
-          <StoreHeader 
+          <StoreHeader
             theme={theme}
             onNavigate={handleNavigate}
             currentView={currentView}
@@ -805,12 +830,12 @@ export default function StorePreview() {
             onSearch={handleSearch}
             onToggleSearch={toggleSearch}
           />
-          
+
           {renderCurrentView()}
-          
+
           <CartWidget itemCount={cart.totalItems} theme={theme} />
           <StoreFooter theme={theme} />
-          
+
           {/* Cart Sidebar */}
           <CartSidebar
             isOpen={cart.isOpen}

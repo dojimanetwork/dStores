@@ -2,10 +2,10 @@ import React, { useState, useRef, useCallback } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { 
-  ArrowLeftIcon, 
-  EyeIcon, 
-  Cog6ToothIcon, 
+import {
+  ArrowLeftIcon,
+  EyeIcon,
+  Cog6ToothIcon,
   ShareIcon,
   PlusIcon,
   TrashIcon,
@@ -60,6 +60,7 @@ interface DropResult {
 
 // Draggable Component from Palette
 function DraggableComponent({ type, name, icon }: { type: string; name: string; icon: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: 'component',
     item: { type, name },
@@ -68,12 +69,15 @@ function DraggableComponent({ type, name, icon }: { type: string; name: string; 
     }),
   });
 
+  React.useEffect(() => {
+    drag(ref);
+  }, [drag]);
+
   return (
     <div
-      ref={drag}
-      className={`p-3 bg-white border rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      ref={ref}
+      className={`p-3 bg-white border rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 ${isDragging ? 'opacity-50' : ''
+        }`}
     >
       <div className="flex items-center space-x-2">
         <span className="text-lg">{icon}</span>
@@ -85,6 +89,7 @@ function DraggableComponent({ type, name, icon }: { type: string; name: string; 
 
 // Droppable Canvas Area
 function DropCanvas({ children, onDrop }: { children: React.ReactNode; onDrop: (item: any) => void }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: 'component',
     drop: (item) => onDrop(item),
@@ -93,12 +98,15 @@ function DropCanvas({ children, onDrop }: { children: React.ReactNode; onDrop: (
     }),
   });
 
+  React.useEffect(() => {
+    drop(ref);
+  }, [drop]);
+
   return (
     <div
-      ref={drop}
-      className={`min-h-full bg-white border-2 border-dashed rounded-lg transition-all duration-200 ${
-        isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
-      }`}
+      ref={ref}
+      className={`min-h-full bg-white border-2 border-dashed rounded-lg transition-all duration-200 ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
+        }`}
     >
       {children}
     </div>
@@ -262,12 +270,11 @@ function RenderedComponent({ component, isSelected, onSelect, onUpdate }: {
 
       case COMPONENT_TYPES.BUTTON:
         return (
-          <button 
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              component.props.variant === 'secondary' 
-                ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
+          <button
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${component.props.variant === 'secondary'
+              ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             style={component.styles}
           >
             {component.props.text || 'Button'}
@@ -283,7 +290,7 @@ function RenderedComponent({ component, isSelected, onSelect, onUpdate }: {
 
       case COMPONENT_TYPES.CONTAINER:
         return (
-          <div 
+          <div
             className="min-h-24 border-2 border-dashed border-gray-300 rounded-lg p-4"
             style={component.styles}
           >
@@ -309,7 +316,7 @@ function RenderedComponent({ component, isSelected, onSelect, onUpdate }: {
       }}
     >
       {renderComponentContent()}
-      
+
       {/* Selection Overlay */}
       {isSelected && (
         <div className="absolute inset-0 bg-blue-500/10 border-2 border-blue-500 rounded pointer-events-none">
@@ -322,7 +329,7 @@ function RenderedComponent({ component, isSelected, onSelect, onUpdate }: {
       {/* Hover Controls */}
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="flex space-x-1">
-          <button 
+          <button
             className="p-1 bg-white border rounded shadow-sm hover:bg-gray-50"
             onClick={(e) => {
               e.stopPropagation();
@@ -331,7 +338,7 @@ function RenderedComponent({ component, isSelected, onSelect, onUpdate }: {
           >
             <DocumentDuplicateIcon className="h-4 w-4 text-gray-600" />
           </button>
-          <button 
+          <button
             className="p-1 bg-white border rounded shadow-sm hover:bg-red-50 text-red-600"
             onClick={(e) => {
               e.stopPropagation();
@@ -359,18 +366,18 @@ export default function VisualBuilder() {
     { type: COMPONENT_TYPES.HEADER, name: 'Header', icon: '🧭', category: 'Layout' },
     { type: COMPONENT_TYPES.FOOTER, name: 'Footer', icon: '📄', category: 'Layout' },
     { type: COMPONENT_TYPES.CONTAINER, name: 'Container', icon: '📦', category: 'Layout' },
-    
+
     // Content Components  
     { type: COMPONENT_TYPES.HERO, name: 'Hero Section', icon: '🎯', category: 'Content' },
     { type: COMPONENT_TYPES.TEXT, name: 'Text', icon: '📝', category: 'Content' },
     { type: COMPONENT_TYPES.IMAGE, name: 'Image', icon: '🖼️', category: 'Content' },
     { type: COMPONENT_TYPES.BUTTON, name: 'Button', icon: '🔘', category: 'Content' },
-    
+
     // E-commerce Components
     { type: COMPONENT_TYPES.PRODUCT_GRID, name: 'Product Grid', icon: '🛍️', category: 'E-commerce' },
     { type: COMPONENT_TYPES.PRODUCT_CARD, name: 'Product Card', icon: '🏷️', category: 'E-commerce' },
     { type: COMPONENT_TYPES.CART_WIDGET, name: 'Cart Widget', icon: '🛒', category: 'E-commerce' },
-    
+
     // Web3 Components
     { type: COMPONENT_TYPES.WALLET_CONNECT, name: 'Wallet Connect', icon: '👛', category: 'Web3' },
     { type: COMPONENT_TYPES.CRYPTO_PAYMENT, name: 'Crypto Payment', icon: '💳', category: 'Web3' },
@@ -438,11 +445,10 @@ export default function VisualBuilder() {
                   <button
                     key={key}
                     onClick={() => setSelectedDevice(key)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      selectedDevice === key 
-                        ? 'bg-white text-blue-600 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${selectedDevice === key
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     <span className="text-sm font-medium">{device.name}</span>
@@ -452,7 +458,7 @@ export default function VisualBuilder() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={() => setPreviewMode(!previewMode)}
                 className="flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
               >
@@ -505,8 +511,8 @@ export default function VisualBuilder() {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Component Name
                           </label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={selectedComponentData.name}
                             className="w-full px-3 py-2 border rounded-md text-sm"
                             onChange={(e) => {
@@ -520,15 +526,15 @@ export default function VisualBuilder() {
                           <>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 placeholder="Hero title"
                               />
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
-                              <textarea 
+                              <textarea
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 rows={3}
                                 placeholder="Hero subtitle"
@@ -536,8 +542,8 @@ export default function VisualBuilder() {
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 placeholder="Call to action"
                               />
@@ -549,8 +555,8 @@ export default function VisualBuilder() {
                           <>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 placeholder="Button text"
                               />
@@ -573,12 +579,12 @@ export default function VisualBuilder() {
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
                               <div className="flex space-x-2">
-                                <input 
-                                  type="color" 
+                                <input
+                                  type="color"
                                   className="w-10 h-10 border rounded cursor-pointer"
                                 />
-                                <input 
-                                  type="text" 
+                                <input
+                                  type="text"
                                   className="flex-1 px-3 py-2 border rounded-md text-sm"
                                   placeholder="#ffffff"
                                 />
@@ -586,16 +592,16 @@ export default function VisualBuilder() {
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Padding</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 placeholder="16px"
                               />
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Margin</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm"
                                 placeholder="8px"
                               />
@@ -631,9 +637,9 @@ export default function VisualBuilder() {
 
               {/* Canvas Area */}
               <div className="flex-1 p-8 bg-gray-100 overflow-auto">
-                <div 
+                <div
                   className="mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
-                  style={{ 
+                  style={{
                     width: previewMode ? '100%' : `${DEVICES[selectedDevice as keyof typeof DEVICES]?.width}px`,
                     minHeight: '600px'
                   }}
@@ -662,7 +668,7 @@ export default function VisualBuilder() {
                             </div>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Start building your Web3 store</h3>
                             <p className="text-gray-500 mb-4">Drag components from the left panel to begin</p>
-                            <button 
+                            <button
                               className="text-blue-600 hover:text-blue-800 font-medium"
                               onClick={() => {
                                 // Add default hero component
@@ -683,8 +689,8 @@ export default function VisualBuilder() {
                           key={component.id}
                           component={component}
                           isSelected={false}
-                          onSelect={() => {}}
-                          onUpdate={() => {}}
+                          onSelect={() => { }}
+                          onUpdate={() => { }}
                         />
                       ))}
                     </div>

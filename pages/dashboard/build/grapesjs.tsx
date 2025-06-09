@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '@/components/DashboardLayout';
-import { 
-  ArrowLeftIcon, 
-  ArrowTopRightOnSquareIcon, 
-  BookmarkSquareIcon, 
-  EyeIcon, 
+import {
+  ArrowLeftIcon,
+  ArrowTopRightOnSquareIcon,
+  BookmarkSquareIcon,
+  EyeIcon,
   PencilIcon,
   TrashIcon,
   ArrowUpIcon,
@@ -17,16 +17,17 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useBuilderStore } from '@/stores/builderStore';
 import { useSetupCompletion } from '@/contexts/SetupCompletionContext';
-import { 
-  ProductCard, 
-  ProductGrid, 
-  HeroSection, 
-  CartWidget, 
+import {
+  ProductCard,
+  ProductGrid,
+  HeroSection,
+  CartWidget,
   CategoryCard,
   NewsletterSignup,
   FeatureHighlight,
   ThemeProvider
 } from '@/components/builder/EcommerceComponents';
+import type { ComponentConfig } from '@/stores/builderStore';
 
 // Component registry with better organization
 const COMPONENT_REGISTRY = {
@@ -93,7 +94,8 @@ const COMPONENT_METADATA = {
 };
 
 // Draggable component from palette
-const DraggableComponent = ({ type, metadata }) => {
+const DraggableComponent = ({ type, metadata }: { type: string; metadata: any }) => {
+  const dragRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: 'component',
     item: { type },
@@ -101,10 +103,11 @@ const DraggableComponent = ({ type, metadata }) => {
       isDragging: monitor.isDragging(),
     }),
   });
+  drag(dragRef);
 
   return (
-    <div 
-      ref={drag}
+    <div
+      ref={dragRef}
       className={`p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-${metadata.color}-50 hover:border-${metadata.color}-300 transition-all duration-200 group ${isDragging ? 'opacity-50' : ''} transform hover:scale-105`}
     >
       <div className="flex items-start gap-3">
@@ -123,7 +126,8 @@ const DraggableComponent = ({ type, metadata }) => {
 };
 
 // Draggable component in canvas for reordering
-const DraggableCanvasComponent = ({ id, index, children, onMove }) => {
+const DraggableCanvasComponent = ({ id, index, children, onMove }: { id: string; index: number; children: React.ReactNode; onMove: (from: number, to: number) => void; }) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: 'canvas-component',
     item: { id, index },
@@ -131,20 +135,20 @@ const DraggableCanvasComponent = ({ id, index, children, onMove }) => {
       isDragging: monitor.isDragging(),
     }),
   });
-
   const [, drop] = useDrop({
     accept: 'canvas-component',
-    hover: (draggedItem) => {
+    hover: (draggedItem: { id: string; index: number }) => {
       if (draggedItem.index !== index) {
         onMove(draggedItem.index, index);
         draggedItem.index = index;
       }
     },
   });
+  drag(drop(ref));
 
   return (
     <div
-      ref={(node) => drag(drop(node))}
+      ref={ref}
       className={`${isDragging ? 'opacity-50' : ''}`}
     >
       {children}
@@ -153,10 +157,21 @@ const DraggableCanvasComponent = ({ id, index, children, onMove }) => {
 };
 
 // Enhanced editable wrapper for components
-const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelected, onClick, index, onMove }) => {
-  const Component = COMPONENT_REGISTRY[type];
+const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelected, onClick, index, onMove }: {
+  id: string;
+  type: string;
+  props: any;
+  onUpdate: (id: string, props: any) => void;
+  onDelete: (id: string) => void;
+  theme: any;
+  isSelected: boolean;
+  onClick: (id: string) => void;
+  index: number;
+  onMove: (from: number, to: number) => void;
+}) => {
+  const Component = (COMPONENT_REGISTRY as any)[type];
   const { duplicateComponent, moveComponentUp, moveComponentDown, currentPage } = useBuilderStore();
-  
+
   if (!Component) return null;
 
   const isFirst = index === 0;
@@ -164,12 +179,11 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
 
   return (
     <DraggableCanvasComponent id={id} index={index} onMove={onMove}>
-      <div 
-        className={`relative group transition-all duration-200 ${
-          isSelected 
-            ? 'ring-2 ring-blue-500 ring-offset-2 bg-blue-50/30' 
-            : 'hover:ring-1 hover:ring-gray-300'
-        } rounded-lg`}
+      <div
+        className={`relative group transition-all duration-200 ${isSelected
+          ? 'ring-2 ring-blue-500 ring-offset-2 bg-blue-50/30'
+          : 'hover:ring-1 hover:ring-gray-300'
+          } rounded-lg`}
         onClick={(e) => {
           e.stopPropagation();
           onClick(id);
@@ -193,11 +207,10 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
                 moveComponentUp(id);
               }}
               disabled={isFirst}
-              className={`p-1 rounded transition-colors ${
-                isFirst 
-                  ? 'text-gray-300 cursor-not-allowed' 
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              }`}
+              className={`p-1 rounded transition-colors ${isFirst
+                ? 'text-gray-300 cursor-not-allowed'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
               title="Move up"
             >
               <ArrowUpIcon className="w-4 h-4" />
@@ -210,11 +223,10 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
                 moveComponentDown(id);
               }}
               disabled={isLast}
-              className={`p-1 rounded transition-colors ${
-                isLast 
-                  ? 'text-gray-300 cursor-not-allowed' 
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              }`}
+              className={`p-1 rounded transition-colors ${isLast
+                ? 'text-gray-300 cursor-not-allowed'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
               title="Move down"
             >
               <ArrowDownIcon className="w-4 h-4" />
@@ -226,11 +238,10 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
                 e.stopPropagation();
                 onClick(id);
               }}
-              className={`p-1 rounded transition-colors ${
-                isSelected 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'text-gray-600 hover:bg-blue-100 hover:text-blue-600'
-              }`}
+              className={`p-1 rounded transition-colors ${isSelected
+                ? 'bg-blue-100 text-blue-600'
+                : 'text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                }`}
               title="Edit properties"
             >
               <PencilIcon className="w-4 h-4" />
@@ -266,8 +277,8 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
 
         {/* Render the component */}
         <div>
-          <Component 
-            {...props} 
+          <Component
+            {...props}
             theme={theme}
           />
         </div>
@@ -277,10 +288,10 @@ const EditableComponent = ({ id, type, props, onUpdate, onDelete, theme, isSelec
 };
 
 // Droppable canvas area
-const DropCanvas = ({ children, onDrop }) => {
-  const [{ isOver }, drop] = useDrop({
+const DropCanvas = ({ children, onDrop }: { children: React.ReactNode; onDrop: (type: string) => void }) => {
+  const [{ isOver }, drop] = useDrop<{ type: string }, void, { isOver: boolean }>({
     accept: 'component',
-    drop: (item) => {
+    drop: (item: { type: string }) => {
       onDrop(item.type);
     },
     collect: (monitor) => ({
@@ -289,8 +300,8 @@ const DropCanvas = ({ children, onDrop }) => {
   });
 
   return (
-    <div 
-      ref={drop}
+    <div
+      ref={drop as unknown as React.Ref<HTMLDivElement>}
       className={`min-h-screen bg-white rounded-lg shadow-sm border-2 border-dashed ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-200'} p-6 transition-colors`}
     >
       {children}
@@ -299,13 +310,18 @@ const DropCanvas = ({ children, onDrop }) => {
 };
 
 // Property editor modal/popup
-const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) => {
+const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }: {
+  selectedComponent: ComponentConfig | undefined;
+  onUpdate: (id: string, props: Partial<ComponentConfig>) => void;
+  onClose: () => void;
+  isOpen: boolean;
+}) => {
   if (!isOpen || !selectedComponent) return null;
 
   const { type, props } = selectedComponent;
-  const metadata = COMPONENT_METADATA[type];
+  const metadata = COMPONENT_METADATA[type as keyof typeof COMPONENT_METADATA];
 
-  const handleChange = (key, value) => {
+  const handleChange = (key: string, value: any) => {
     onUpdate(selectedComponent.id, { props: { ...props, [key]: value } });
   };
 
@@ -313,7 +329,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
-        <div 
+        <div
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
           onClick={onClose}
         ></div>
@@ -362,7 +378,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
                     value={props.subtitle || ''}
                     onChange={(e) => handleChange('subtitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows="3"
+                    rows={3}
                     placeholder="Enter subtitle..."
                   />
                 </div>
@@ -388,7 +404,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
                 </div>
               </>
             )}
-            
+
             {type === 'product-grid' && (
               <>
                 <div>
@@ -448,7 +464,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
                 </div>
               </>
             )}
-            
+
             {type === 'newsletter' && (
               <>
                 <div>
@@ -467,7 +483,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
                     value={props.subtitle || ''}
                     onChange={(e) => handleChange('subtitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows="2"
+                    rows={3}
                     placeholder="Enter subtitle..."
                   />
                 </div>
@@ -524,7 +540,7 @@ const PropertyEditorModal = ({ selectedComponent, onUpdate, onClose, isOpen }) =
 };
 
 // Add this new component after the PropertyEditorModal
-const SectionEditorModal = ({ isOpen, onClose }) => {
+const SectionEditorModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { storeInfo, updateStoreInfo } = useBuilderStore();
   const [formData, setFormData] = useState(storeInfo);
 
@@ -534,19 +550,19 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
 
   const handleSave = () => {
     updateStoreInfo(formData);
-    
+
     // Also update localStorage directly to ensure persistence
     localStorage.setItem('storeInfo', JSON.stringify({
       ...storeInfo,
       ...formData
     }));
-    
+
     // Show success feedback
     alert('Store information updated successfully! Your changes will be visible in the preview.');
     onClose();
   };
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: any) => {
     if (field.startsWith('social.')) {
       const socialField = field.split('.')[1];
       setFormData(prev => ({
@@ -580,7 +596,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {/* Store Information */}
           <div>
@@ -596,7 +612,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
                   placeholder="Your Store Name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Store Description (About Page)</label>
                 <textarea
@@ -624,7 +640,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
                   placeholder="contact@yourstore.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                 <input
@@ -635,7 +651,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                 <textarea
@@ -663,7 +679,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
                   placeholder="https://facebook.com/yourstore"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
                 <input
@@ -674,7 +690,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
                   placeholder="https://instagram.com/yourstore"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Twitter URL</label>
                 <input
@@ -688,7 +704,7 @@ const SectionEditorModal = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end gap-4 p-6 border-t flex-shrink-0 bg-white">
           <button
             onClick={onClose}
@@ -731,7 +747,7 @@ export default function VisualBuilder() {
     storeInfo,
     updateStoreInfo
   } = useBuilderStore();
-  
+
   const { markBuildWebsiteComplete, isStepCompleted } = useSetupCompletion();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -743,7 +759,7 @@ export default function VisualBuilder() {
 
   useEffect(() => {
     loadPages();
-    
+
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/products?storeId=1');
@@ -782,7 +798,7 @@ export default function VisualBuilder() {
   const selectedComponentData = currentPage?.components.find(c => c.id === selectedComponent);
 
   // Handle component selection and modal opening
-  const handleComponentSelect = (id) => {
+  const handleComponentSelect = (id: string) => {
     selectComponent(id);
     if (id) {
       setShowPropertyModal(true);
@@ -806,18 +822,18 @@ export default function VisualBuilder() {
     );
   }
 
-  const handleDropComponent = (componentType) => {
+  const handleDropComponent = (componentType: string) => {
     const newComponent = {
       id: `${componentType}_${Date.now()}`,
       type: componentType,
       props: getDefaultProps(componentType),
       position: { x: 0, y: 0 },
-      size: { width: 100, height: 'auto' }
+      size: { width: 100, height: 100 }
     };
     addComponent(newComponent);
   };
 
-  const getDefaultProps = (type) => {
+  const getDefaultProps = (type: string) => {
     const defaults = {
       'hero': {
         title: 'Welcome to Your Store',
@@ -861,7 +877,7 @@ export default function VisualBuilder() {
         ]
       }
     };
-    return defaults[type] || {};
+    return defaults[type as keyof typeof defaults] || {};
   };
 
   const handleSaveProject = () => {
@@ -872,11 +888,11 @@ export default function VisualBuilder() {
   const handleFinalizeWebsite = () => {
     // Save the project first
     savePages();
-    
+
     // Mark website as complete when finalized
     if (currentPage && currentPage.components && currentPage.components.length > 0) {
       markBuildWebsiteComplete('visual-builder', 'visual-builder');
-      
+
       // Also save finalization data for the main build page
       const websiteData = {
         type: 'Visual Builder',
@@ -886,11 +902,11 @@ export default function VisualBuilder() {
         lastModified: new Date().toISOString(),
         finalizedAt: new Date().toISOString()
       };
-      
+
       localStorage.setItem('finalizedWebsite', JSON.stringify(websiteData));
-      
+
       alert('🎉 Website finalized successfully! You can now proceed to add products.');
-      
+
       // Redirect to build page to show the finalized status
       setTimeout(() => {
         router.push('/dashboard/build');
@@ -906,12 +922,12 @@ export default function VisualBuilder() {
     router.push('/store-preview');
   };
 
-  const handleMoveComponent = (fromIndex, toIndex) => {
+  const handleMoveComponent = (fromIndex: number, toIndex: number) => {
     reorderComponents(fromIndex, toIndex);
   };
 
   // Group components by category
-  const componentsByCategory = Object.entries(COMPONENT_METADATA).reduce((acc, [type, metadata]) => {
+  const componentsByCategory = Object.entries(COMPONENT_METADATA).reduce((acc: Record<string, { type: string; metadata: typeof COMPONENT_METADATA[keyof typeof COMPONENT_METADATA] }[]>, [type, metadata]) => {
     if (!acc[metadata.category]) {
       acc[metadata.category] = [];
     }
@@ -960,8 +976,8 @@ export default function VisualBuilder() {
               {/* Right Side */}
               <div className="flex items-center gap-2">
                 {/* Theme Selector - Hidden on mobile */}
-                <select 
-                  value={currentTheme.id} 
+                <select
+                  value={currentTheme.id}
                   onChange={(e) => {
                     const theme = themes.find(t => t.id === e.target.value);
                     if (theme) setTheme(theme);
@@ -976,11 +992,10 @@ export default function VisualBuilder() {
                 {/* Preview Toggle */}
                 <button
                   onClick={togglePreview}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
-                    isPreview 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${isPreview
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   {isPreview ? 'Edit' : 'Preview'}
                 </button>
@@ -998,11 +1013,10 @@ export default function VisualBuilder() {
                   <button
                     onClick={handleFinalizeWebsite}
                     disabled={!currentPage || !currentPage.components || currentPage.components.length === 0}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                      currentPage && currentPage.components && currentPage.components.length > 0
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${currentPage && currentPage.components && currentPage.components.length > 0
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
                   >
                     Finalize
                   </button>
@@ -1015,11 +1029,10 @@ export default function VisualBuilder() {
                 {/* Store Info Button */}
                 <button
                   onClick={() => setShowSectionEditor(true)}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
-                    storeInfo.name || storeInfo.description || storeInfo.email 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${storeInfo.name || storeInfo.description || storeInfo.email
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   Info
                   {(storeInfo.name || storeInfo.description || storeInfo.email) && (
@@ -1047,7 +1060,7 @@ export default function VisualBuilder() {
                   <h3 className="text-sm font-medium text-gray-900">Component Library</h3>
                   <p className="text-xs text-gray-500 mt-1">Drag components to build your store</p>
                 </div>
-                
+
                 <div className="flex-1 p-4 overflow-y-auto">
                   <div className="space-y-6">
                     {/* Layout Components */}
@@ -1057,7 +1070,7 @@ export default function VisualBuilder() {
                         Layout Components
                       </h4>
                       <div className="space-y-2">
-                        {componentsByCategory.layout?.map(({ type, metadata }) => (
+                        {componentsByCategory.layout?.map(({ type, metadata }: { type: string; metadata: typeof COMPONENT_METADATA[keyof typeof COMPONENT_METADATA] }) => (
                           <DraggableComponent
                             key={type}
                             type={type}
@@ -1074,7 +1087,7 @@ export default function VisualBuilder() {
                         E-commerce Components
                       </h4>
                       <div className="space-y-2">
-                        {componentsByCategory.ecommerce?.map(({ type, metadata }) => (
+                        {componentsByCategory.ecommerce?.map(({ type, metadata }: { type: string; metadata: typeof COMPONENT_METADATA[keyof typeof COMPONENT_METADATA] }) => (
                           <DraggableComponent
                             key={type}
                             type={type}
@@ -1091,7 +1104,7 @@ export default function VisualBuilder() {
                         Marketing Components
                       </h4>
                       <div className="space-y-2">
-                        {componentsByCategory.marketing?.map(({ type, metadata }) => (
+                        {componentsByCategory.marketing?.map(({ type, metadata }: { type: string; metadata: typeof COMPONENT_METADATA[keyof typeof COMPONENT_METADATA] }) => (
                           <DraggableComponent
                             key={type}
                             type={type}
@@ -1113,9 +1126,9 @@ export default function VisualBuilder() {
                   <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                     <div className="space-y-8">
                       {currentPage?.components?.map((component) => {
-                        const Component = COMPONENT_REGISTRY[component.type];
+                        const Component = (COMPONENT_REGISTRY as any)[component.type];
                         return Component ? (
-                          <Component 
+                          <Component
                             key={component.id}
                             {...component.props}
                             theme={currentTheme}
@@ -1128,7 +1141,7 @@ export default function VisualBuilder() {
                 ) : (
                   // Edit mode - draggable components
                   <DropCanvas onDrop={handleDropComponent}>
-                    <div 
+                    <div
                       className="space-y-6 min-h-96"
                       onClick={() => selectComponent(null)}
                     >
@@ -1170,13 +1183,13 @@ export default function VisualBuilder() {
           </div>
 
           {/* Property Editor Modal */}
-          <PropertyEditorModal 
+          <PropertyEditorModal
             selectedComponent={selectedComponentData}
             onUpdate={updateComponent}
             onClose={handleClosePropertyModal}
             isOpen={showPropertyModal}
           />
-          
+
           <SectionEditorModal
             isOpen={showSectionEditor}
             onClose={() => setShowSectionEditor(false)}

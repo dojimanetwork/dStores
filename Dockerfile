@@ -14,6 +14,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Set build arguments and environment variables
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV NODE_ENV=production
+
 # Build the application
 RUN npm run build
 

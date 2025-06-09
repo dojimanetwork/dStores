@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // Component configuration interface
-interface ComponentConfig {
+export interface ComponentConfig {
   id: string;
   type: string;
   props: Record<string, any>;
@@ -66,28 +66,28 @@ interface PageConfig {
 interface BuilderState {
   // Current page being edited
   currentPage: PageConfig | null;
-  
+
   // Available pages
   pages: PageConfig[];
-  
+
   // Available themes
   themes: Theme[];
-  
+
   // Current theme
   currentTheme: Theme;
-  
+
   // Selected component
   selectedComponent: string | null;
-  
+
   // Editing mode
   isEditing: boolean;
-  
+
   // Preview mode
   isPreview: boolean;
-  
+
   // User's products (fetched dynamically)
   products: any[];
-  
+
   // Shopping cart state
   cart: {
     items: any[];
@@ -95,14 +95,14 @@ interface BuilderState {
     totalItems: number;
     totalPrice: number;
   };
-  
+
   // Search state
   search: {
     query: string;
     results: any[];
     isOpen: boolean;
   };
-  
+
   // Store info
   storeInfo: {
     name: string;
@@ -116,10 +116,10 @@ interface BuilderState {
       twitter: string;
     };
   };
-  
+
   // Navigation state
   currentView: 'home' | 'products' | 'about' | 'contact' | 'search' | 'cart';
-  
+
   // Actions
   setCurrentPage: (page: PageConfig) => void;
   addComponent: (component: ComponentConfig) => void;
@@ -137,22 +137,22 @@ interface BuilderState {
   reorderComponents: (startIndex: number, endIndex: number) => void;
   moveComponentUp: (id: string) => void;
   moveComponentDown: (id: string) => void;
-  
+
   // Cart actions
   addToCart: (product: any) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   toggleCart: () => void;
   clearCart: () => void;
-  
+
   // Search actions
   setSearchQuery: (query: string) => void;
   performSearch: () => void;
   toggleSearch: () => void;
-  
+
   // Navigation actions
   setCurrentView: (view: 'home' | 'products' | 'about' | 'contact' | 'search' | 'cart') => void;
-  
+
   // Store info actions
   updateStoreInfo: (info: Partial<any>) => void;
 }
@@ -324,7 +324,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       };
       return { currentPage: defaultPage };
     }
-    
+
     return {
       currentPage: {
         ...state.currentPage,
@@ -406,17 +406,17 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const savedPages = localStorage.getItem('builderPages');
       const savedCurrentPage = localStorage.getItem('currentPage');
       const savedStoreInfo = localStorage.getItem('storeInfo');
-      
+
       if (savedPages) {
         const pages = JSON.parse(savedPages);
         set({ pages });
       }
-      
+
       if (savedCurrentPage) {
         const currentPage = JSON.parse(savedCurrentPage);
         set({ currentPage });
       }
-      
+
       if (savedStoreInfo) {
         const storeInfo = JSON.parse(savedStoreInfo);
         set({ storeInfo });
@@ -495,7 +495,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     if (index > 0) {
       // Swap components
       [components[index], components[index - 1]] = [components[index - 1], components[index]];
-      
+
       return {
         currentPage: {
           ...currentPage,
@@ -515,7 +515,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     if (index >= 0 && index < components.length - 1) {
       // Swap components
       [components[index], components[index + 1]] = [components[index + 1], components[index]];
-      
+
       return {
         currentPage: {
           ...currentPage,
@@ -595,13 +595,13 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       });
       return;
     }
-    
+
     const results = products.filter(product =>
       product.name.toLowerCase().includes(search.query.toLowerCase()) ||
       product.description?.toLowerCase().includes(search.query.toLowerCase()) ||
       product.category?.toLowerCase().includes(search.query.toLowerCase())
     );
-    
+
     set({
       search: {
         ...search,
@@ -624,10 +624,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       ...state.storeInfo,
       ...info
     };
-    
+
     // Save to localStorage immediately
     localStorage.setItem('storeInfo', JSON.stringify(updatedStoreInfo));
-    
+
     return {
       storeInfo: updatedStoreInfo
     };

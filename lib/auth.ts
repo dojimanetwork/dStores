@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { userOperations } from './database';
 
@@ -31,14 +31,14 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 // Generate JWT token
 export function generateToken(user: User): string {
   return jwt.sign(
-    { 
-      id: user.id, 
-      email: user.email, 
-      name: user.name, 
-      role: user.role 
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
     },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN } as SignOptions
   );
 }
 
@@ -62,7 +62,7 @@ export function requireAuth(handler: (req: AuthRequest, res: NextApiResponse) =>
   return async (req: AuthRequest, res: NextApiResponse) => {
     try {
       const authHeader = req.headers.authorization;
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'No token provided' });
       }
@@ -147,7 +147,7 @@ export function hasPermission(user: User, requiredRole: string): boolean {
   const roles = ['user', 'admin', 'super_admin'];
   const userRoleIndex = roles.indexOf(user.role);
   const requiredRoleIndex = roles.indexOf(requiredRole);
-  
+
   return userRoleIndex >= requiredRoleIndex;
 }
 

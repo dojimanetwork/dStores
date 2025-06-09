@@ -5,6 +5,8 @@ pipeline {
     }
     environment {
         IMAGENAME = 'web3-stores'
+        OPENAI_API_KEY = credentials('OPENAI_API_KEY')
+        NODE_ENV = 'production'
     }
     parameters {
         choice(name: 'BUILD_TYPE', choices: ['patch', 'minor', 'major'], description: 'Select version to build in develop')
@@ -34,11 +36,8 @@ pipeline {
                             echo "Selected action: ${INCREMENT_TYPE}, ${TAG}, ${GCR}"
                             sh 'gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GCR}'
                             
-                            // Build and push Docker image
-                            sh """
-                                docker build -t ${GCR}/${IMAGENAME}:${TAG} .
-                                docker push ${GCR}/${IMAGENAME}:${TAG}
-                            """
+                            // Use Makefile for build and push
+                            sh 'make docker-build docker-push'
                         }
                     }
                 }
@@ -51,6 +50,7 @@ pipeline {
             }
             environment {
                 INCREMENT_TYPE = "${params.BUILD_TYPE}"
+                AZURE = "${params.NET}.azurecr.io"
             }
             steps {
                 script {
@@ -65,30 +65,18 @@ pipeline {
                         string(credentialsId: 'DOCKER_HUB_CREDENTIALS_ID', variable: 'DOCKER_PASSWORD')
                     ]) {
                         withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${env.SSH_KEY}"]) {
-                            env.AZURE = "${params.NET}.azurecr.io"
-                            def _azure = "${params.NET}.azurecr.io"
-                            def _net = "${params.NET}"
-                            env.TAG = "${params.NET}"
-
                             // Azure container registry login based on environment
                             if (params.NET == "stagenet") {
                                 sh 'echo $AZURE_STAGENET_ACCESS_TOKEN | docker login -u stagenet --password-stdin $AZURE'
                             } else if (params.NET == "mainnet") {
                                 sh 'echo $AZURE_MAINNET_ACCESS_TOKEN | docker login -u mainnet --password-stdin $AZURE'
                             } else if (params.NET == "testnet") {
-                                _azure = "${params.NET}1.azurecr.io"
-                                sh """
-                                    echo $AZURE_TESTNET_ACCESS_TOKEN | docker login -u testnet1 --password-stdin $_azure
-                                """
+                                env.AZURE = "${params.NET}1.azurecr.io"
+                                sh 'echo $AZURE_TESTNET_ACCESS_TOKEN | docker login -u testnet1 --password-stdin $AZURE'
                             }
 
-                            env.AZURE = _azure
-
-                            // Build and push Docker image
-                            sh """
-                                docker build -t ${env.AZURE}/${IMAGENAME}:${env.TAG} .
-                                docker push ${env.AZURE}/${IMAGENAME}:${env.TAG}
-                            """
+                            // Use Makefile for build and push
+                            sh 'make release'
 
                             // Security scan with Trivy
                             sh """

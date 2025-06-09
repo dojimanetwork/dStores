@@ -4,13 +4,39 @@ import { useState, useEffect } from 'react';
 import { useSetupCompletion } from '@/contexts/SetupCompletionContext';
 import { useBuilderStore } from '@/stores/builderStore';
 
+type WebsiteData = {
+  type: string;
+  method: 'template' | 'ai-generated' | 'visual-builder' | null;
+  theme: string;
+  lastModified: string;
+  completedAt: string | null;
+  description?: string;
+  templateId?: string;
+  templateName?: string;
+  componentCount?: number;
+  aiModel?: string;
+};
+
+type BuildOption = {
+  id: string;
+  title: string;
+  description: string;
+  href: string | null;
+  icon: string;
+  category: string;
+  color: string;
+  enabled: boolean;
+  popular?: boolean;
+  comingSoon?: boolean;
+};
+
 export default function BuildHomePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { markBuildWebsiteComplete, isStepCompleted, completionState, getBuildMethod } = useSetupCompletion();
   const { currentPage, storeInfo } = useBuilderStore();
-  const [finalizedWebsite, setFinalizedWebsite] = useState(null);
+  const [finalizedWebsite, setFinalizedWebsite] = useState<WebsiteData | null>(null);
 
   // Check for completion state changes and update finalized website accordingly
   useEffect(() => {
@@ -21,13 +47,18 @@ export default function BuildHomePage() {
           const buildMethod = getBuildMethod();
           const templateSelected = completionState.buildWebsite.templateSelected;
           const method = completionState.buildWebsite.method;
-          
+
           let websiteData = {
             type: buildMethod || 'Custom Build',
             method: method,
             theme: 'Default Theme',
             lastModified: new Date().toLocaleDateString(),
-            completedAt: completionState.buildWebsite.completedAt
+            completedAt: completionState.buildWebsite.completedAt,
+            description: undefined as string | undefined,
+            templateId: undefined as string | undefined,
+            templateName: undefined as string | undefined,
+            componentCount: undefined as number | undefined,
+            aiModel: undefined as string | undefined
           };
 
           if (method === 'template' && templateSelected) {
@@ -87,7 +118,9 @@ export default function BuildHomePage() {
               description: 'Custom website built with drag-and-drop editor',
               componentCount: pageData.components.length,
               theme: pageData.theme?.name || 'Default Theme',
-              lastModified: new Date().toLocaleDateString()
+              lastModified: new Date().toLocaleDateString(),
+              method: 'visual-builder' as 'visual-builder',
+              completedAt: null
             };
           }
         }
@@ -100,7 +133,9 @@ export default function BuildHomePage() {
             description: `Professional template: ${template.name}`,
             templateId: template.id,
             theme: template.theme || 'Default Theme',
-            lastModified: new Date().toLocaleDateString()
+            lastModified: new Date().toLocaleDateString(),
+            method: 'template' as 'template',
+            completedAt: null
           };
         }
 
@@ -112,17 +147,19 @@ export default function BuildHomePage() {
             description: 'AI-powered custom website design',
             aiModel: aiData.model || 'GPT-4',
             theme: aiData.theme || 'AI Selected Theme',
-            lastModified: new Date().toLocaleDateString()
+            lastModified: new Date().toLocaleDateString(),
+            method: 'ai-generated' as 'ai-generated',
+            completedAt: null
           };
         }
 
         if (websiteData) {
           setFinalizedWebsite(websiteData);
           // Mark build website as complete if not already
-          if (!isStepCompleted('buildWebsite')) {
-            const method = websiteSource === 'template' ? 'template' : 
-                          websiteSource === 'visual-builder' ? 'visual-builder' : 
-                          websiteSource === 'ai-generated' ? 'ai-generated' : 'visual-builder';
+          if (!isStepCompleted('buildWebsite') && typeof websiteSource === 'string') {
+            const method = websiteSource === 'template' ? 'template' :
+              websiteSource === 'visual-builder' ? 'visual-builder' :
+                websiteSource === 'ai-generated' ? 'ai-generated' : 'visual-builder';
             markBuildWebsiteComplete(websiteSource, method);
           }
         } else {
@@ -136,7 +173,7 @@ export default function BuildHomePage() {
     };
 
     updateFinalizedWebsite();
-    
+
     // Add a small delay to ensure everything is loaded
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -145,22 +182,25 @@ export default function BuildHomePage() {
     return () => clearTimeout(timer);
   }, [isStepCompleted, markBuildWebsiteComplete, completionState, getBuildMethod]); // Added dependencies to trigger updates
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: BuildOption) => {
     if (!option.enabled) {
       return; // Do nothing for disabled options
     }
-    
-    console.log(`🎯 Build option clicked: ${option.title}`);
-    console.log(`🔗 Navigating to: ${option.href}`);
-    
+
     try {
-      router.push(option.href).catch((error) => {
-        console.error(`❌ Navigation failed:`, error);
-        window.location.href = option.href;
-      });
+      if (typeof option.href === 'string') {
+        router.push(option.href).catch((error) => {
+          console.error(`❌ Navigation failed:`, error);
+          if (typeof option.href === 'string') {
+            window.location.href = option.href;
+          }
+        });
+      }
     } catch (error) {
       console.error(`❌ Click handler error:`, error);
-      window.location.href = option.href;
+      if (typeof option.href === 'string') {
+        window.location.href = option.href;
+      }
     }
   };
 
@@ -198,49 +238,6 @@ export default function BuildHomePage() {
       enabled: false
     }
   ];
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading build options...</p>
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="text-red-600 mb-4">
-                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Something went wrong</h3>
-              <p className="text-gray-600 mb-4">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Reload Page
-              </button>
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>
@@ -345,72 +342,66 @@ export default function BuildHomePage() {
 
         {/* Build Options Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {buildOptions.map((option) => {
-            return (
-              <div
-                key={option.id}
-                onClick={() => handleOptionClick(option)}
-                className={`relative bg-white rounded-xl border border-gray-200 p-8 transition-all ${
-                  option.enabled 
-                    ? 'hover:shadow-xl hover:border-gray-300 cursor-pointer group' 
-                    : 'opacity-60 cursor-not-allowed'
+          {buildOptions.map((option: BuildOption) => (
+            <div
+              key={option.id}
+              onClick={() => handleOptionClick(option)}
+              className={`relative bg-white rounded-xl border border-gray-200 p-8 transition-all ${option.enabled
+                ? 'hover:shadow-xl hover:border-gray-300 cursor-pointer group'
+                : 'opacity-60 cursor-not-allowed'
                 }`}
-              >
-                {/* Badges */}
-                <div className="absolute top-6 right-6 flex gap-2">
-                  {option.popular && (
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
-                      Popular
-                    </span>
-                  )}
-                  {option.comingSoon && (
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
-                      Coming Soon
-                    </span>
-                  )}
-                </div>
-
-                {/* Icon and Category */}
-                <div className="mb-6">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${option.color} rounded-2xl flex items-center justify-center mb-4 ${
-                    option.enabled ? 'group-hover:scale-110' : ''
-                  } transition-transform shadow-lg`}>
-                    <span className="text-2xl">{option.icon}</span>
-                  </div>
-                  <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
-                    {option.category}
+            >
+              {/* Badges */}
+              <div className="absolute top-6 right-6 flex gap-2">
+                {option.popular && (
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
+                    Popular
                   </span>
-                </div>
-
-                {/* Content */}
-                <h3 className={`text-2xl font-bold text-gray-900 mb-3 transition-colors ${
-                  option.enabled ? 'group-hover:text-blue-600' : ''
-                }`}>
-                  {option.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  {option.description}
-                </p>
-
-                {/* Call to Action */}
-                <div className={`flex items-center font-semibold transition-transform ${
-                  option.enabled 
-                    ? 'text-blue-600 group-hover:translate-x-2' 
-                    : 'text-gray-400'
-                }`}>
-                  {option.enabled 
-                    ? (finalizedWebsite || isStepCompleted('buildWebsite') ? 'Modify' : 'Get Started')
-                    : 'Available Soon'
-                  }
-                  {option.enabled && (
-                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
-                </div>
+                )}
+                {option.comingSoon && (
+                  <span className="bg-gray-100 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                )}
               </div>
-            );
-          })}
+
+              {/* Icon and Category */}
+              <div className="mb-6">
+                <div className={`w-16 h-16 bg-gradient-to-r ${option.color} rounded-2xl flex items-center justify-center mb-4 ${option.enabled ? 'group-hover:scale-110' : ''
+                  } transition-transform shadow-lg`}>
+                  <span className="text-2xl">{option.icon}</span>
+                </div>
+                <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                  {option.category}
+                </span>
+              </div>
+
+              {/* Content */}
+              <h3 className={`text-2xl font-bold text-gray-900 mb-3 transition-colors ${option.enabled ? 'group-hover:text-blue-600' : ''
+                }`}>
+                {option.title}
+              </h3>
+              <p className="text-gray-600 leading-relaxed mb-6">
+                {option.description}
+              </p>
+
+              {/* Call to Action */}
+              <div className={`flex items-center font-semibold transition-transform ${option.enabled
+                ? 'text-blue-600 group-hover:translate-x-2'
+                : 'text-gray-400'
+                }`}>
+                {option.enabled
+                  ? (finalizedWebsite || isStepCompleted('buildWebsite') ? 'Modify' : 'Get Started')
+                  : 'Available Soon'
+                }
+                {option.enabled && (
+                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </DashboardLayout>

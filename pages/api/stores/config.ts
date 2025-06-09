@@ -264,7 +264,6 @@ const defaultStoreConfig: Omit<StoreConfig, 'shippingOptions'> = {
   currency: "USD",
   taxRate: 0.08, // 8% tax
   freeShippingThreshold: 50,
-  shippingOptions: [], // Will be populated dynamically
   paymentMethods: [
     {
       id: 'credit_card',
@@ -315,7 +314,7 @@ async function getConfiguredShippingOptions(storeId: string): Promise<{ customOp
     const response = await fetch(`${baseUrl}/api/shipping?storeId=${storeId}`, {
       method: 'GET',
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       return {
@@ -326,7 +325,7 @@ async function getConfiguredShippingOptions(storeId: string): Promise<{ customOp
   } catch (error) {
     console.error('Error fetching configured shipping options:', error);
   }
-  
+
   // Fallback to empty configuration
   return {
     customOptions: [],
@@ -341,7 +340,7 @@ async function getCartProductSources(storeId: string): Promise<string[]> {
     const response = await fetch(`${baseUrl}/api/products?storeId=${storeId}`, {
       method: 'GET',
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       const products = data.products || [];
@@ -349,12 +348,12 @@ async function getCartProductSources(storeId: string): Promise<string[]> {
         const source = p.source || p.metadata?.source;
         return source || 'manual';
       }))];
-      return sources;
+      return sources as string[];
     }
   } catch (error) {
     console.error('Error fetching product sources:', error);
   }
-  
+
   // Fallback to manual products only
   return ['manual'];
 }
@@ -366,13 +365,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { storeId = '1', cartProducts } = req.query;
-    
+
     // Get configured shipping options for manual products
     const { customOptions, fulfillmentProviders } = await getConfiguredShippingOptions(storeId as string);
-    
+
     // Get product sources (manual vs imported)
     let productSources: string[] = ['manual']; // Default
-    
+
     if (cartProducts) {
       try {
         productSources = JSON.parse(cartProducts as string);
@@ -382,10 +381,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       productSources = await getCartProductSources(storeId as string);
     }
-    
+
     // Build shipping options based on product sources
     const shippingOptions: ShippingOption[] = [];
-    
+
     // Add custom shipping options if there are manual products
     const hasManualProducts = productSources.includes('manual') || productSources.includes('seed');
     if (hasManualProducts && customOptions.length > 0) {
@@ -401,7 +400,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       });
     }
-    
+
     // Add fulfillment provider shipping options for manual products
     if (hasManualProducts && fulfillmentProviders.length > 0) {
       fulfillmentProviders.forEach((providerId: string) => {
@@ -411,14 +410,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
     }
-    
+
     // Add platform-specific shipping for imported products
     productSources.forEach(source => {
       if (platformShipping[source]) {
         shippingOptions.push(...platformShipping[source]);
       }
     });
-    
+
     // If no shipping options configured yet, provide a basic default for manual products
     if (shippingOptions.length === 0 && hasManualProducts) {
       shippingOptions.push({
@@ -431,13 +430,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isManual: true
       });
     }
-    
+
     const config: StoreConfig = {
       ...defaultStoreConfig,
       id: parseInt(storeId as string),
       shippingOptions
     };
-    
+
     res.status(200).json(config);
   } catch (error) {
     console.error('Error fetching store config:', error);

@@ -26,7 +26,7 @@ export default function StoreSettings() {
     setFormData(storeInfo);
   }, [storeInfo]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (name.startsWith('social.')) {
       const socialField = name.split('.')[1];
@@ -45,10 +45,10 @@ export default function StoreSettings() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     try {
       updateStoreInfo(formData);
       setSaveMessage('Store settings saved successfully!');
@@ -81,11 +81,10 @@ export default function StoreSettings() {
           </div>
 
           {saveMessage && (
-            <div className={`flex items-center gap-2 p-3 rounded-md ${
-              saveMessage.includes('Error') 
-                ? 'bg-red-50 text-red-700 border border-red-200'
-                : 'bg-green-50 text-green-700 border border-green-200'
-            }`}>
+            <div className={`flex items-center gap-2 p-3 rounded-md ${saveMessage.includes('Error')
+              ? 'bg-red-50 text-red-700 border border-red-200'
+              : 'bg-green-50 text-green-700 border border-green-200'
+              }`}>
               <CheckIcon className="w-5 h-5" />
               {saveMessage}
             </div>
@@ -98,7 +97,7 @@ export default function StoreSettings() {
             {/* Basic Information */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -133,7 +132,7 @@ export default function StoreSettings() {
             {/* Contact Information */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -182,7 +181,7 @@ export default function StoreSettings() {
             {/* Social Media Links */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Media</h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -233,11 +232,10 @@ export default function StoreSettings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className={`px-6 py-2 bg-blue-600 text-white rounded-md font-medium transition-colors ${
-                  isSaving 
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:bg-blue-700'
-                }`}
+                className={`px-6 py-2 bg-blue-600 text-white rounded-md font-medium transition-colors ${isSaving
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-blue-700'
+                  }`}
               >
                 {isSaving ? 'Saving...' : 'Save Settings'}
               </button>

@@ -1,8 +1,69 @@
 import React from 'react';
 import { useBuilderStore } from '@/stores/builderStore';
 
+interface ThemeColors {
+  background?: string;
+  text?: string;
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+  border?: string;
+}
+
+interface Theme {
+  colors?: ThemeColors;
+  fonts?: {
+    heading: string;
+    body: string;
+  };
+}
+
+interface CartWidgetProps {
+  itemCount?: number;
+  showBadge?: boolean;
+  theme?: Theme;
+}
+
+interface Category {
+  name: string;
+  image: string;
+  productCount: number;
+}
+
+interface CategoryCardProps {
+  category?: Category;
+  theme?: Theme;
+}
+
+interface NewsletterSignupProps {
+  title?: string;
+  subtitle?: string;
+  placeholder?: string;
+  buttonText?: string;
+  backgroundColor?: string;
+  theme?: Theme;
+  editable?: boolean;
+  onEdit?: (field: string, value: string) => void;
+}
+
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface FeatureHighlightProps {
+  features?: Feature[];
+  theme?: Theme;
+}
+
+interface ThemeProviderProps {
+  theme?: Theme;
+  children: React.ReactNode;
+}
+
 // Product Card Component with dynamic data
-export const ProductCard = ({ 
+export const ProductCard = ({
   product,
   productId,
   showFromUserProducts = false,
@@ -18,23 +79,23 @@ export const ProductCard = ({
   onAddToCart?: (product: any) => void;
 }) => {
   const { products } = useBuilderStore();
-  
+
   // Ensure products is an array before using find
   const productsArray = Array.isArray(products) ? products : [];
-  
+
   // Use user's product if specified, otherwise use passed product or default
-  const displayProduct = showFromUserProducts && productId 
-    ? productsArray.find(p => p && p.id === productId) 
+  const displayProduct = showFromUserProducts && productId
+    ? productsArray.find(p => p && p.id === productId)
     : product || {
-        id: 1,
-        name: 'Sample Product',
-        price: 99,
-        image: '/api/placeholder/300/200',
-        originalPrice: null,
-        rating: 4.5,
-        reviews: 127,
-        description: 'A great product for your store'
-      };
+      id: 1,
+      name: 'Sample Product',
+      price: 99,
+      image: '/api/placeholder/300/200',
+      originalPrice: null,
+      rating: 4.5,
+      reviews: 127,
+      description: 'A great product for your store'
+    };
 
   const themeColors = theme?.colors || {
     primary: '#2563eb',
@@ -57,15 +118,15 @@ export const ProductCard = ({
   };
 
   return (
-    <div 
+    <div
       className={`bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${className}`}
       style={{ backgroundColor: themeColors.background }}
     >
       <div className="relative">
-        <img 
-          src={displayProduct.image || '/api/placeholder/300/200'} 
-          alt={displayProduct.name || 'Product'} 
-          className="w-full h-48 object-cover rounded-md mb-3" 
+        <img
+          src={displayProduct.image || '/api/placeholder/300/200'}
+          alt={displayProduct.name || 'Product'}
+          className="w-full h-48 object-cover rounded-md mb-3"
         />
         {displayProduct.originalPrice && displayProduct.originalPrice > displayProduct.price && (
           <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
@@ -73,15 +134,15 @@ export const ProductCard = ({
           </div>
         )}
       </div>
-      
+
       <div className="space-y-2">
-        <h3 
+        <h3
           className="font-semibold text-sm line-clamp-2"
           style={{ color: themeColors.text }}
         >
           {displayProduct.name || 'Product Name'}
         </h3>
-        
+
         {/* Rating */}
         <div className="flex items-center space-x-1">
           {[...Array(5)].map((_, i) => (
@@ -96,10 +157,10 @@ export const ProductCard = ({
           ))}
           <span className="text-xs text-gray-500">({displayProduct.reviews || 0})</span>
         </div>
-        
+
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <span 
+          <span
             className="text-lg font-bold"
             style={{ color: themeColors.primary }}
           >
@@ -111,8 +172,8 @@ export const ProductCard = ({
             </span>
           )}
         </div>
-        
-        <button 
+
+        <button
           onClick={handleAddToCart}
           className="w-full mt-3 text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors text-sm font-medium"
           style={{ backgroundColor: themeColors.primary }}
@@ -125,8 +186,8 @@ export const ProductCard = ({
 };
 
 // Product Grid Component with dynamic products
-export const ProductGrid = ({ 
-  title = 'Featured Products', 
+export const ProductGrid = ({
+  title = 'Featured Products',
   columns = 3,
   showViewAll = true,
   categoryFilter = null,
@@ -143,23 +204,23 @@ export const ProductGrid = ({
   theme?: any;
 }) => {
   const { products } = useBuilderStore();
-  
+
   // Ensure we always start with an array
   let displayProducts = showFromUserProducts && Array.isArray(products) ? products : [];
-  
+
   if (categoryFilter && displayProducts.length > 0) {
-    displayProducts = displayProducts.filter(p => 
+    displayProducts = displayProducts.filter(p =>
       p.category?.toLowerCase().includes(categoryFilter.toLowerCase())
     );
   }
-  
+
   // Ensure displayProducts is still an array before slicing
   if (Array.isArray(displayProducts)) {
     displayProducts = displayProducts.slice(0, limit);
   } else {
     displayProducts = [];
   }
-  
+
   // If no user products, show sample products
   if (displayProducts.length === 0) {
     displayProducts = Array.from({ length: Math.min(limit, 6) }, (_, i) => ({
@@ -181,14 +242,14 @@ export const ProductGrid = ({
   return (
     <div className="py-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 
+        <h2
           className="text-2xl font-bold"
           style={{ color: themeColors.text }}
         >
           {title}
         </h2>
         {showViewAll && (
-          <button 
+          <button
             className="font-medium hover:opacity-80"
             style={{ color: themeColors.primary }}
           >
@@ -198,7 +259,7 @@ export const ProductGrid = ({
       </div>
       <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${Math.min(columns, 4)} gap-6`}>
         {displayProducts.map((product) => (
-          <ProductCard 
+          <ProductCard
             key={product.id}
             product={product}
             theme={theme}
@@ -210,9 +271,9 @@ export const ProductGrid = ({
 };
 
 // Hero Section Component with theme support
-export const HeroSection = ({ 
-  title = 'Welcome to Your Store', 
-  subtitle = 'Discover amazing products at unbeatable prices', 
+export const HeroSection = ({
+  title = 'Welcome to Your Store',
+  subtitle = 'Discover amazing products at unbeatable prices',
   buttonText = 'Shop Now',
   secondaryButtonText = 'Learn More',
   backgroundImage = '/api/placeholder/1200/400',
@@ -246,7 +307,7 @@ export const HeroSection = ({
   };
 
   return (
-    <div 
+    <div
       className="relative h-96 bg-cover bg-center rounded-lg flex items-center justify-center text-white overflow-hidden"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
@@ -263,7 +324,7 @@ export const HeroSection = ({
         ) : (
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{title}</h1>
         )}
-        
+
         {editable ? (
           <textarea
             value={subtitle}
@@ -274,9 +335,9 @@ export const HeroSection = ({
         ) : (
           <p className="text-xl mb-8 opacity-90">{subtitle}</p>
         )}
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
+          <button
             className="px-8 py-3 rounded-lg font-semibold transition-colors hover:opacity-90"
             style={{ backgroundColor: themeColors.primary }}
           >
@@ -294,22 +355,22 @@ export const HeroSection = ({
 };
 
 // Cart Widget Component
-export const CartWidget = ({ itemCount = 0, showBadge = true, theme }) => {
+export const CartWidget = ({ itemCount = 0, showBadge = true, theme }: CartWidgetProps) => {
   const themeColors = theme?.colors || {
     background: '#ffffff',
     text: '#1f2937'
   };
 
   return (
-    <div 
+    <div
       className="fixed top-4 right-4 rounded-full p-3 shadow-lg border cursor-pointer hover:shadow-xl transition-shadow z-50"
       style={{ backgroundColor: themeColors.background }}
     >
       <div className="relative">
-        <svg 
-          className="w-6 h-6" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
           style={{ color: themeColors.text }}
         >
@@ -333,19 +394,19 @@ export const CategoryCard = ({
     productCount: 150
   },
   theme
-}) => {
+}: CategoryCardProps) => {
   const themeColors = theme?.colors || {
     background: '#ffffff'
   };
 
   return (
-    <div 
+    <div
       className="relative rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
       style={{ backgroundColor: themeColors.background }}
     >
       <div className="aspect-w-16 aspect-h-9">
-        <img 
-          src={category.image} 
+        <img
+          src={category.image}
           alt={category.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -369,7 +430,7 @@ export const NewsletterSignup = ({
   theme,
   editable = false,
   onEdit
-}) => {
+}: NewsletterSignupProps) => {
   const themeColors = theme?.colors || {
     primary: '#2563eb',
     text: '#1f2937'
@@ -388,7 +449,7 @@ export const NewsletterSignup = ({
       ) : (
         <h3 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>{title}</h3>
       )}
-      
+
       {editable ? (
         <textarea
           value={subtitle}
@@ -398,14 +459,14 @@ export const NewsletterSignup = ({
       ) : (
         <p className="text-gray-600 mb-6">{subtitle}</p>
       )}
-      
+
       <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-        <input 
-          type="email" 
+        <input
+          type="email"
           placeholder={placeholder}
           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
         />
-        <button 
+        <button
           className="text-white px-6 py-3 rounded-lg font-medium transition-colors hover:opacity-90"
           style={{ backgroundColor: themeColors.primary }}
         >
@@ -424,15 +485,15 @@ export const FeatureHighlight = ({
     { icon: 'shield', title: 'Secure Payments', description: 'SSL encryption' }
   ],
   theme
-}) => {
+}: FeatureHighlightProps) => {
   const themeColors = theme?.colors || {
     primary: '#2563eb',
     text: '#1f2937',
     background: '#ffffff'
   };
 
-  const getIcon = (iconName) => {
-    const icons = {
+  const getIcon = (iconName: string) => {
+    const icons: Record<string, React.ReactElement> = {
       truck: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
       ),
@@ -451,14 +512,14 @@ export const FeatureHighlight = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {features.map((feature, index) => (
           <div key={index} className="text-center">
-            <div 
+            <div
               className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: `${themeColors.primary}20` }}
             >
-              <svg 
-                className="w-6 h-6" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
                 style={{ color: themeColors.primary }}
               >
@@ -477,22 +538,22 @@ export const FeatureHighlight = ({
 };
 
 // Theme Provider Component
-export const ThemeProvider = ({ theme, children }) => {
+export const ThemeProvider = ({ theme, children }: ThemeProviderProps) => {
   if (!theme) return children;
 
   const cssVariables = {
-    '--color-primary': theme.colors.primary,
-    '--color-secondary': theme.colors.secondary,
-    '--color-accent': theme.colors.accent,
-    '--color-background': theme.colors.background,
-    '--color-text': theme.colors.text,
-    '--color-border': theme.colors.border,
-    '--font-heading': theme.fonts.heading,
-    '--font-body': theme.fonts.body,
+    '--color-primary': theme.colors?.primary,
+    '--color-secondary': theme.colors?.secondary,
+    '--color-accent': theme.colors?.accent,
+    '--color-background': theme.colors?.background,
+    '--color-text': theme.colors?.text,
+    '--color-border': theme.colors?.border,
+    '--font-heading': theme.fonts?.heading,
+    '--font-body': theme.fonts?.body,
   };
 
   return (
-    <div style={cssVariables} className="theme-provider">
+    <div style={cssVariables as React.CSSProperties} className="theme-provider">
       {children}
     </div>
   );

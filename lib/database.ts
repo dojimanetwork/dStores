@@ -331,7 +331,7 @@ export const storeOperations = {
     try {
       const setClause = Object.keys(updates).map((key, index) => `${key} = $${index + 2}`).join(', ');
       const values = [id, ...Object.values(updates)];
-      
+
       const result = await client.query(
         `UPDATE stores SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
         values
@@ -384,7 +384,7 @@ export const productOperations = {
     try {
       const setClause = Object.keys(updates).map((key, index) => `${key} = $${index + 2}`).join(', ');
       const values = [id, ...Object.values(updates)];
-      
+
       const result = await client.query(
         `UPDATE products SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
         values
@@ -434,15 +434,25 @@ export const orderOperations = {
   async updateStatus(id: number, status: string, paymentStatus?: string) {
     const client = await pool.connect();
     try {
-      const updates = paymentStatus 
+      const updates = paymentStatus
         ? 'status = $2, payment_status = $3, updated_at = CURRENT_TIMESTAMP'
         : 'status = $2, updated_at = CURRENT_TIMESTAMP';
       const values = paymentStatus ? [id, status, paymentStatus] : [id, status];
-      
+
       const result = await client.query(
         `UPDATE orders SET ${updates} WHERE id = $1 RETURNING *`,
         values
       );
+      return result.rows[0];
+    } finally {
+      client.release();
+    }
+  },
+
+  async findById(id: number) {
+    const client = await pool.connect();
+    try {
+      const result = await client.query('SELECT * FROM orders WHERE id = $1', [id]);
       return result.rows[0];
     } finally {
       client.release();
@@ -522,7 +532,7 @@ export async function addSampleProducts(storeId: number = 1) {
   try {
     // First, clear existing products for this store
     await client.query('DELETE FROM products WHERE store_id = $1', [storeId]);
-    
+
     const sampleProducts = [
       {
         name: 'Premium Wireless Headphones',

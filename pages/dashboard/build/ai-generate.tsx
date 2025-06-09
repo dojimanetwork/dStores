@@ -1,10 +1,10 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { 
-  ArrowLeftIcon, 
-  SparklesIcon, 
-  EyeIcon, 
+import {
+  ArrowLeftIcon,
+  SparklesIcon,
+  EyeIcon,
   ArrowRightIcon,
   LightBulbIcon,
   PaintBrushIcon,
@@ -114,16 +114,27 @@ export default function AIGenerate() {
 
   const handleGenerate = async () => {
     setIsGenerating(true);
-    
-    // Simulate AI generation process
-    setTimeout(() => {
-      setGeneratedSite({
-        preview: 'Generated website preview',
-        pages: ['Home', 'Products', 'About', 'Contact'],
-        components: ['Header', 'Hero Section', 'Product Grid', 'Footer']
-      });
+
+    try {
+      // Check if API key is available
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OpenAI API key is not configured. Please add your API key to the .env file.');
+      }
+
+      // Simulate AI generation process
+      setTimeout(() => {
+        setGeneratedSite({
+          preview: 'Generated website preview',
+          pages: ['Home', 'Products', 'About', 'Contact'],
+          components: ['Header', 'Hero Section', 'Product Grid', 'Footer']
+        });
+        setIsGenerating(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Generation error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to generate website. Please try again.');
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const renderStepContent = () => {
@@ -137,7 +148,7 @@ export default function AIGenerate() {
               </label>
               <select
                 value={formData.businessType}
-                onChange={(e) => setFormData({...formData, businessType: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
                 className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
               >
                 <option value="">Select your business type</option>
@@ -154,7 +165,7 @@ export default function AIGenerate() {
               <input
                 type="text"
                 value={formData.businessName}
-                onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                 className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 placeholder="Enter your business name"
               />
@@ -166,7 +177,7 @@ export default function AIGenerate() {
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
                 className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base resize-none"
                 placeholder="Describe what your business does, your products/services, and what makes you unique..."
@@ -180,7 +191,7 @@ export default function AIGenerate() {
               <input
                 type="text"
                 value={formData.targetAudience}
-                onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
                 className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 placeholder="Who are your ideal customers? (e.g., crypto enthusiasts, digital artists, gamers)"
               />
@@ -199,12 +210,11 @@ export default function AIGenerate() {
                 {designStyles.map((style) => (
                   <div
                     key={style.id}
-                    onClick={() => setFormData({...formData, style: style.id})}
-                    className={`p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all touch-manipulation active:scale-95 ${
-                      formData.style === style.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    onClick={() => setFormData({ ...formData, style: style.id })}
+                    className={`p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all touch-manipulation active:scale-95 ${formData.style === style.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">{style.name}</h3>
                     <p className="text-xs sm:text-sm text-gray-600">{style.description}</p>
@@ -220,7 +230,7 @@ export default function AIGenerate() {
               <input
                 type="text"
                 value={formData.colors}
-                onChange={(e) => setFormData({...formData, colors: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
                 className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                 placeholder="Describe your preferred colors (e.g., blue and white, dark theme, vibrant colors)"
               />
@@ -403,9 +413,8 @@ export default function AIGenerate() {
           <div className="flex items-center justify-between min-w-max sm:min-w-0">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full ${
-                  index <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-                }`}>
+                <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full ${index <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+                  }`}>
                   {index < currentStep ? (
                     <svg className="w-3 h-3 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -415,17 +424,15 @@ export default function AIGenerate() {
                   )}
                 </div>
                 <div className="ml-2 sm:ml-3 hidden sm:block">
-                  <div className={`text-xs sm:text-sm font-medium ${
-                    index <= currentStep ? 'text-gray-900' : 'text-gray-500'
-                  }`}>
+                  <div className={`text-xs sm:text-sm font-medium ${index <= currentStep ? 'text-gray-900' : 'text-gray-500'
+                    }`}>
                     {step.title}
                   </div>
                   <div className="text-xs text-gray-500 hidden lg:block">{step.description}</div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 ${
-                    index < currentStep ? 'bg-blue-600' : 'bg-gray-300'
-                  }`} />
+                  <div className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 ${index < currentStep ? 'bg-blue-600' : 'bg-gray-300'
+                    }`} />
                 )}
               </div>
             ))}

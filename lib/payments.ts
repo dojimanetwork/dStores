@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { orderOperations } from './database';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-02-24.acacia',
 });
 
 export interface PaymentIntent {
@@ -149,14 +149,14 @@ export async function handleStripeWebhook(
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const orderId = paymentIntent.metadata.order_id;
-        
+
         if (orderId) {
           await orderOperations.updateStatus(
             parseInt(orderId),
             'processing',
             'paid'
           );
-          
+
           // Send confirmation email here
           await sendOrderConfirmationEmail(parseInt(orderId));
         }
@@ -165,7 +165,7 @@ export async function handleStripeWebhook(
       case 'payment_intent.payment_failed':
         const failedPayment = event.data.object as Stripe.PaymentIntent;
         const failedOrderId = failedPayment.metadata.order_id;
-        
+
         if (failedOrderId) {
           await orderOperations.updateStatus(
             parseInt(failedOrderId),
@@ -199,16 +199,16 @@ export async function verifyCryptoPayment(
     // 3. Check transaction amount matches expected amount
     // 4. Verify destination address matches your wallet
     // 5. Check transaction confirmations
-    
+
     console.log('Verifying crypto payment:', {
       transactionHash,
       expectedAmount,
       walletAddress
     });
-    
+
     // Simulate verification delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // Return true for demo (in real app, implement actual verification)
     return true;
   } catch (error) {
@@ -223,7 +223,7 @@ export async function sendOrderConfirmationEmail(orderId: number): Promise<void>
     // This would integrate with an email service like SendGrid, Resend, etc.
     // For now, we'll just log it
     console.log(`Sending order confirmation email for order ${orderId}`);
-    
+
     // In a real implementation:
     // 1. Get order details from database
     // 2. Generate email template with order information
@@ -291,9 +291,9 @@ export async function calculateShipping(
 ): Promise<number> {
   // This would integrate with shipping providers like FedEx, UPS, USPS
   // For demo purposes, return a flat rate
-  
+
   const totalWeight = items.reduce((sum, item) => sum + (item.weight || 1) * item.quantity, 0);
-  
+
   switch (shippingMethod) {
     case 'standard':
       return Math.max(5.99, totalWeight * 0.5);
@@ -313,9 +313,9 @@ export async function calculateTax(
 ): Promise<number> {
   // This would integrate with tax calculation services
   // For demo purposes, apply a simple tax rate
-  
+
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const taxRate = 0.08; // 8% tax rate
-  
+
   return subtotal * taxRate;
 } 

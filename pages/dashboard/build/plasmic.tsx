@@ -3,10 +3,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { 
-  ArrowLeftIcon, 
-  EyeIcon, 
-  Cog6ToothIcon, 
+import {
+  ArrowLeftIcon,
+  EyeIcon,
+  Cog6ToothIcon,
   ShareIcon,
   PlusIcon,
   TrashIcon,
@@ -17,6 +17,7 @@ import {
   PlayIcon,
   CodeBracketIcon
 } from '@heroicons/react/24/outline';
+import React from 'react';
 
 // Web3 Commerce Component Types
 const COMPONENT_TYPES = {
@@ -50,24 +51,28 @@ interface ComponentData {
 }
 
 // Draggable Component
-function DraggableComponent({ type, name, icon, description }: { 
-  type: string; 
-  name: string; 
+function DraggableComponent({ type, name, icon, description }: {
+  type: string;
+  name: string;
   icon: string;
   description: string;
 }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: 'component',
     item: { type, name },
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
   });
 
+  React.useEffect(() => {
+    drag(ref);
+  }, [drag]);
+
   return (
     <div
-      ref={drag}
-      className={`p-3 bg-white border rounded-lg cursor-grab hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 ${
-        isDragging ? 'opacity-50 cursor-grabbing' : ''
-      }`}
+      ref={ref}
+      className={`p-3 bg-white border rounded-lg cursor-grab hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 ${isDragging ? 'opacity-50 cursor-grabbing' : ''
+        }`}
     >
       <div className="flex items-start space-x-3">
         <span className="text-xl">{icon}</span>
@@ -82,18 +87,22 @@ function DraggableComponent({ type, name, icon, description }: {
 
 // Drop Canvas
 function DropCanvas({ children, onDrop }: { children: React.ReactNode; onDrop: (item: any) => void }) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: 'component',
     drop: (item) => onDrop(item),
     collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
+  React.useEffect(() => {
+    drop(ref);
+  }, [drop]);
+
   return (
     <div
-      ref={drop}
-      className={`min-h-full transition-all duration-200 ${
-        isOver ? 'bg-purple-50 ring-2 ring-purple-300' : ''
-      }`}
+      ref={ref}
+      className={`min-h-full transition-all duration-200 ${isOver ? 'bg-purple-50 ring-2 ring-purple-300' : ''
+        }`}
     >
       {children}
     </div>
@@ -274,12 +283,11 @@ function RenderedComponent({ component, isSelected, onSelect }: {
 
       case COMPONENT_TYPES.BUTTON:
         return (
-          <button 
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              component.props.variant === 'secondary' 
-                ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
-            }`}
+          <button
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${component.props.variant === 'secondary'
+              ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+              : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
+              }`}
           >
             {component.props.text || 'Click Me'}
           </button>
@@ -312,7 +320,7 @@ function RenderedComponent({ component, isSelected, onSelect }: {
       }}
     >
       {renderContent()}
-      
+
       {/* Selection Overlay */}
       {isSelected && (
         <div className="absolute inset-0 bg-purple-500/10 border-2 border-purple-500 rounded pointer-events-none">
@@ -421,7 +429,7 @@ export default function PlasmicBuilder() {
               <div className="mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Plasmic</h2>
@@ -504,11 +512,10 @@ export default function PlasmicBuilder() {
                   <button
                     key={key}
                     onClick={() => setSelectedDevice(key)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
-                      selectedDevice === key 
-                        ? 'bg-white text-purple-600 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${selectedDevice === key
+                      ? 'bg-white text-purple-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     <span className="text-sm font-medium">{device.name}</span>
@@ -518,7 +525,7 @@ export default function PlasmicBuilder() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <button 
+              <button
                 onClick={() => setPreviewMode(!previewMode)}
                 className="flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
               >
@@ -572,8 +579,8 @@ export default function PlasmicBuilder() {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={selectedComponentData.name}
                             className="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                           />
@@ -584,15 +591,15 @@ export default function PlasmicBuilder() {
                           <>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500"
                                 placeholder="Hero title"
                               />
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
-                              <textarea 
+                              <textarea
                                 className="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-purple-500"
                                 rows={3}
                                 placeholder="Hero subtitle"
@@ -608,8 +615,8 @@ export default function PlasmicBuilder() {
                               <label className="block text-sm font-medium text-gray-700 mb-1">Background</label>
                               <div className="flex space-x-2">
                                 <input type="color" className="w-10 h-10 border rounded cursor-pointer" />
-                                <input 
-                                  type="text" 
+                                <input
+                                  type="text"
                                   className="flex-1 px-3 py-2 border rounded-md text-sm"
                                   placeholder="Linear gradient or color"
                                 />
@@ -644,9 +651,9 @@ export default function PlasmicBuilder() {
               )}
 
               <div className="flex-1 p-8 bg-gray-100 overflow-auto">
-                <div 
+                <div
                   className="mx-auto bg-white shadow-xl rounded-lg overflow-hidden"
-                  style={{ 
+                  style={{
                     width: previewMode ? '100%' : `${DEVICES[selectedDevice as keyof typeof DEVICES]?.width}px`,
                     minHeight: '800px'
                   }}
@@ -672,7 +679,7 @@ export default function PlasmicBuilder() {
                             </div>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Start Building</h3>
                             <p className="text-gray-500 mb-4">Drag components from the sidebar to get started</p>
-                            <button 
+                            <button
                               className="text-purple-600 hover:text-purple-800 font-medium"
                               onClick={() => handleComponentDrop({ type: COMPONENT_TYPES.HERO, name: 'Hero Section' })}
                             >
@@ -689,7 +696,7 @@ export default function PlasmicBuilder() {
                           key={component.id}
                           component={component}
                           isSelected={false}
-                          onSelect={() => {}}
+                          onSelect={() => { }}
                         />
                       ))}
                     </div>

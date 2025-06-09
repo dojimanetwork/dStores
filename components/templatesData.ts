@@ -17,6 +17,8 @@ export interface TemplateDefinition {
   description: string;
   category: string;
   designer: string;
+  theme?: string;
+  rating?: number;
   tags: string[];
   features: string[];
   colorScheme: {
@@ -146,11 +148,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Award-winning futuristic template with sci-fi gaming UI aesthetics, holographic elements, and cinematic glow effects. Features advanced cursor interactions, smooth scroll animations, and immersive 3D-like depth.',
     category: 'Tech',
     designer: 'Future Labs Design Studio',
+    theme: 'futuristic',
+    rating: 4.8,
     tags: ['futuristic', 'sci-fi', 'holographic', 'glow-effects', 'gaming-ui', 'premium'],
     features: ['Holographic Product Displays', 'Cinematic Scroll Animations', 'Gaming UI Elements', 'Glow & Light Effects', 'Advanced Cursor Interactions', '3D-Like Depth'],
     colorScheme: {
       primary: '#00D4FF',
-      secondary: '#0A0A0F', 
+      secondary: '#0A0A0F',
       accent: '#FF006E',
       background: '#000000',
       glow: '#00D4FF'
@@ -207,11 +211,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Premium luxury template with sophisticated glow effects, window shadow overlays, and off-white aesthetics. Features advanced light manipulation, organic shadows, and award-winning visual hierarchy.',
     category: 'Fashion',
     designer: 'Awwwards Studio Collective',
+    theme: 'boutique',
+    rating: 4.8,
     tags: ['luxury', 'glow-effects', 'window-shadows', 'off-white', 'premium', 'organic'],
     features: ['Sophisticated Glow Effects', 'Window Shadow Overlays', 'Off-White Aesthetics', 'Organic Light Play', 'Premium Typography', 'Luxury Animations'],
     colorScheme: {
       primary: '#1A1A1A',
-      secondary: '#FEFBF6', 
+      secondary: '#FEFBF6',
       accent: '#D4AF37',
       background: '#FEFBF6',
       glow: '#FFD700'
@@ -257,11 +263,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Cutting-edge template with Flash-era nostalgia meets modern tech. Features advanced scroll interactions, playful animations, cursor effects, and immersive storytelling elements.',
     category: 'Creative',
     designer: 'Interactive Motion Labs',
+    theme: 'immersive',
+    rating: 4.8,
     tags: ['interactive', 'flash-nostalgia', 'scroll-animations', 'cursor-effects', 'storytelling', 'immersive'],
     features: ['Advanced Scroll Interactions', 'Flash-Era Nostalgia', 'Custom Cursor Effects', 'Immersive Storytelling', 'Playful Animations', 'Interactive Elements'],
     colorScheme: {
       primary: '#FF3366',
-      secondary: '#1E1E1E', 
+      secondary: '#1E1E1E',
       accent: '#00FF88',
       background: '#F8F8F8',
       glow: '#FF3366'
@@ -296,11 +304,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Next-generation template showcasing AI-generated imagery with holographic effects, data visualization, and cutting-edge aesthetic. Perfect for tech-forward brands and digital art platforms.',
     category: 'Digital',
     designer: 'AI Design Collective',
+    theme: 'futuristic',
+    rating: 4.8,
     tags: ['ai-generated', 'holographic', 'data-viz', 'cutting-edge', 'digital-art', 'tech-forward'],
     features: ['AI-Generated Imagery', 'Holographic Displays', 'Data Visualization', 'Tech-Forward Design', 'Digital Art Showcase', 'Innovative Layouts'],
     colorScheme: {
       primary: '#8B5CF6',
-      secondary: '#0F0F23', 
+      secondary: '#0F0F23',
       accent: '#F59E0B',
       background: '#111111',
       glow: '#8B5CF6'
@@ -335,11 +345,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Award-winning minimalist template with sophisticated typography, subtle glow accents, and premium off-white aesthetics. Features clean brutalist elements with organic shadow overlays.',
     category: 'Minimal',
     designer: 'Pentagram Studio',
+    theme: 'minimal',
+    rating: 4.8,
     tags: ['minimal', 'brutalist', 'typography', 'off-white', 'clean', 'sophisticated'],
     features: ['Award-Winning Typography', 'Sophisticated Minimalism', 'Subtle Glow Accents', 'Brutalist Elements', 'Off-White Aesthetic', 'Premium Layout'],
     colorScheme: {
       primary: '#000000',
-      secondary: '#FEFEFE', 
+      secondary: '#FEFEFE',
       accent: '#FF4500',
       background: '#FAFAFA',
       glow: '#FF4500'
@@ -374,11 +386,13 @@ export const TEMPLATES: TemplateDefinition[] = [
     description: 'Groundbreaking surreal 3D template inspired by Salvador Dali with impossible geometries, mind-bending visuals, and avant-garde product presentations. Features cutting-edge WebGL effects.',
     category: 'Art',
     designer: 'Surreal Design Labs',
+    theme: 'immersive',
+    rating: 4.8,
     tags: ['surreal', '3d', 'salvador-dali', 'webgl', 'impossible-geometry', 'avant-garde'],
     features: ['Surreal 3D Elements', 'Impossible Geometries', 'WebGL Effects', 'Avant-Garde Design', 'Mind-Bending Visuals', 'Artistic Product Display'],
     colorScheme: {
       primary: '#FF1493',
-      secondary: '#4B0082', 
+      secondary: '#4B0082',
       accent: '#FFD700',
       background: '#2F1B69',
       glow: '#FF1493'
