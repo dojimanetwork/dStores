@@ -19,14 +19,30 @@ if [[ ! "$INCREMENT_TYPE" =~ ^(major|minor|patch)$ ]]; then
     exit 1
 fi
 
-# Fetch tags from the remote repository
-git fetch --tags 2>/dev/null || true
+# Function to get latest tag with error handling
+get_latest_tag() {
+    # Try to fetch tags with authentication
+    if ! git fetch --tags 2>/dev/null; then
+        echo "Warning: Could not fetch tags from remote. Using local tags only."
+    fi
 
-# Get the latest tag, default to 0.0.0 if no tags exist
-latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+    # Try to get the latest tag
+    local tag
+    tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+    
+    # If no tags found, return default
+    if [ "$tag" = "0.0.0" ]; then
+        echo "0.0.0"
+        return 0
+    fi
 
-# Remove 'v' prefix if it exists
-latest_tag=${latest_tag#v}
+    # Remove 'v' prefix if it exists
+    tag=${tag#v}
+    echo "$tag"
+}
+
+# Get the latest tag
+latest_tag=$(get_latest_tag)
 
 # Validate tag format
 if ! [[ $latest_tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
