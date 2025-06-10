@@ -104,7 +104,7 @@ azure-build: azure-check pull
 	@echo "Image tag: ${IMAGETAG}"
 	@echo "Version: ${VERSION}"
 	@echo "AZURE: ${AZURE}"
-	docker build \
+	docker build --no-cache \
 		--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-f ./Dockerfile \
 		-t ${AZURE}/${IMAGENAME}:${IMAGETAG} .
