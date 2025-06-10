@@ -85,21 +85,17 @@ pipeline {
                             // Run the release
                             sh "make azure-release AZURE=${azureRegistry} INCREMENT_TYPE=${params.BUILD_TYPE}"
 
-                            // Capture environment variables from Makefile
-                            def buildInfo = sh(script: "make print-vars INCREMENT_TYPE=${params.BUILD_TYPE}", returnStdout: true).trim().split('\n')
-                            def envVars = [:]
-                            buildInfo.each {
-                                def (key, value) = it.split('=')
-                                envVars[key.trim()] = value.trim()
-                            }
-
+                            // Get GITREF and VERSION directly from git and make
+                            def gitref = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                            def version = sh(script: "make print-vars INCREMENT_TYPE=${params.BUILD_TYPE} | grep '^VERSION=' | cut -d'=' -f2", returnStdout: true).trim()
+                            
                             // Set environment variables
-                            env.GITREF = envVars['GITREF']
-                            env.VERSION = envVars['VERSION']
+                            env.GITREF = gitref
+                            env.VERSION = version ?: "0.0.1"
                             env.IMAGETAG = "${env.GITREF}_${env.VERSION}"
 
-                            echo "Captured GITREF: ${env.GITREF}"
-                            echo "Captured VERSION: ${env.VERSION}"
+                            echo "Git Reference: ${env.GITREF}"
+                            echo "Version: ${env.VERSION}"
                             echo "Image Tag: ${env.IMAGETAG}"
 
                             // Get image digest
