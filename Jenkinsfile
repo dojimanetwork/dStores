@@ -24,6 +24,7 @@ pipeline {
                 GCR = "asia-south1-docker.pkg.dev/prod-dojima/${params.NET}"
             }
             steps {
+                cleanWs()
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
                                       string(credentialsId: 'gcloud-access-token', variable: 'GCLOUD_ACCESS_TOKEN'),
@@ -49,6 +50,7 @@ pipeline {
                 NET_TYPE = "${params.NET}"
             }
             steps {
+                cleanWs()
                 script {
                     withCredentials([
                         sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
@@ -100,11 +102,14 @@ pipeline {
 
                             // Get image digest
                             def imageDigest = sh(
-                                script: "docker inspect --format='{{index .RepoDigests 0}}' ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG} | awk -F'@' '{print \$2}'",
+                                script: "docker inspect --format='{{index .RepoDigests 0}}' ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG} | awk -F'@' '{print \\$2}'",
                                 returnStdout: true
                             ).trim().replaceAll(/^sha256:/, '')
 
                             echo "Image Digest: ${imageDigest}"
+
+                            // Print cross-spawn version
+                            sh 'npm ls cross-spawn || true'
 
                             // Run security scan
                             sh """
