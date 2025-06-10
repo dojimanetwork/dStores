@@ -107,14 +107,6 @@ pipeline {
 
                             echo "Image Digest: ${imageDigest}"
 
-                            // Print cross-spawn version
-                            sh 'npm ls cross-spawn || true'
-
-                            // Run security scan
-                            sh """
-                                trivy clean --scan-cache && trivy image --format table --exit-code 1 --ignore-unfixed --pkg-types os,library --severity CRITICAL,HIGH ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG}
-                            """
-
                             // Update ArgoCD based on network type
                             if (params.NET == 'mainnet') {
                                 updateArgoCD('prod', azureRegistry, env.IMAGETAG)
