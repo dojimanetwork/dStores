@@ -101,8 +101,9 @@ pipeline {
                             echo "Image Tag: ${env.IMAGETAG}"
 
                             // Get image digest
+                            def inspectCmd = "docker inspect --format='{{index .RepoDigests 0}}' ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG} | awk -F'@' '{print \$2}'"
                             def imageDigest = sh(
-                                script: "docker inspect --format='{{index .RepoDigests 0}}' ${azureRegistry}/${IMAGENAME}:${env.IMAGETAG} | awk -F'@' '{print \\$2}'",
+                                script: inspectCmd,
                                 returnStdout: true
                             ).trim().replaceAll(/^sha256:/, '')
 
