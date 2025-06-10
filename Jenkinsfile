@@ -79,10 +79,11 @@ pipeline {
                                 azurePassword = "${AZURE_TESTNET_ACCESS_TOKEN}"
                             }
 
-                            // Login to Azure Container Registry
-                            sh """
-                                echo '${azurePassword}' | docker login -u ${azureUsername} --password-stdin ${azureRegistry}
-                            """
+                            withEnv(["AZURE_PASSWORD=${azurePassword}"]) {
+                                sh '''
+                                    echo "$AZURE_PASSWORD" | docker login -u ${azureUsername} --password-stdin ${azureRegistry}
+                                '''
+                            }
 
                             // Run the release
                             sh "make azure-release AZURE=${azureRegistry} INCREMENT_TYPE=${params.BUILD_TYPE}"
