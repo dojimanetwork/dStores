@@ -30,7 +30,7 @@ pipeline {
                                       string(credentialsId: 'ci-registry-user', variable: 'CI_REGISTRY_USER'),
                                       string(credentialsId: 'ci-registry', variable: 'CI_REGISTRY'),
                                       string(credentialsId: 'ci-pat', variable: 'CR_PAT')]) {
-                        withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${env.SSH_KEY}"]) {
+                        withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${SSH_KEY}"]) {
                             echo "Selected action: ${INCREMENT_TYPE}, ${NET_TYPE}, ${GCR}"
                             sh 'gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GCR}'
                             sh 'make release'
@@ -60,21 +60,27 @@ pipeline {
                         string(credentialsId: 'ci-pat', variable: 'CR_PAT'),
                         string(credentialsId: 'DOCKER_HUB_CREDENTIALS_ID', variable: 'DOCKER_PASSWORD')
                     ]) {
-                        withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${env.SSH_KEY}"]) {
+                        withEnv(["GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no -i ${SSH_KEY}"]) {
                             def azureRegistry = "${params.NET}.azurecr.io"
                             def azureUsername = "mainnet"
+                            def azurePassword = ""
                             
                             if (params.NET == "stagenet") {
                                 azureUsername = "stagenet"
-                                sh 'echo $AZURE_STAGENET_ACCESS_TOKEN | docker login -u stagenet --password-stdin ${azureRegistry}'
+                                azurePassword = "${AZURE_STAGENET_ACCESS_TOKEN}"
                             } else if (params.NET == "mainnet") {
                                 azureUsername = "mainnet"
-                                sh 'echo $AZURE_MAINNET_ACCESS_TOKEN | docker login -u mainnet --password-stdin ${azureRegistry}'
+                                azurePassword = "${AZURE_MAINNET_ACCESS_TOKEN}"
                             } else if (params.NET == "testnet") {
                                 azureRegistry = "${params.NET}1.azurecr.io"
                                 azureUsername = "testnet1"
-                                sh 'echo $AZURE_TESTNET_ACCESS_TOKEN | docker login -u testnet1 --password-stdin ${azureRegistry}'
+                                azurePassword = "${AZURE_TESTNET_ACCESS_TOKEN}"
                             }
+
+                            // Login to Azure Container Registry
+                            sh """
+                                echo '${azurePassword}' | docker login -u ${azureUsername} --password-stdin ${azureRegistry}
+                            """
 
                             // Run the release
                             sh "make azure-release AZURE=${azureRegistry} INCREMENT_TYPE=${params.BUILD_TYPE}"
@@ -133,7 +139,7 @@ def updateArgoCD(String environment, String registry, String imageTag) {
                 rm -rf ArgoCD
             fi
             git clone https://${GIT_TOKEN}@github.com/dojimanetwork/ArgoCD.git
-            cd ArgoCD/apps/dojima-foundation/overlays/${environment}
+            cd ArgoCD/apps/web3-stores/overlays/${environment}
             /var/lib/jenkins/kustomize edit set image ${registry}/${IMAGENAME}:${imageTag}
             git add .
             git commit -m "Update image ${registry}/${IMAGENAME} with ${imageTag}"
