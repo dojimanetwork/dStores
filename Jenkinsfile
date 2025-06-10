@@ -24,7 +24,6 @@ pipeline {
                 GCR = "asia-south1-docker.pkg.dev/prod-dojima/${params.NET}"
             }
             steps {
-                cleanWs()
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
                                       string(credentialsId: 'gcloud-access-token', variable: 'GCLOUD_ACCESS_TOKEN'),
@@ -50,7 +49,6 @@ pipeline {
                 NET_TYPE = "${params.NET}"
             }
             steps {
-                cleanWs()
                 script {
                     withCredentials([
                         sshUserPrivateKey(credentialsId: 'dojimanetwork', keyFileVariable: 'SSH_KEY'),
@@ -83,7 +81,7 @@ pipeline {
                             sh """
                                 echo '${azurePassword}' | docker login -u ${azureUsername} --password-stdin ${azureRegistry}
                             """
-                            
+
                             // Run the release
                             sh "make azure-release AZURE=${azureRegistry} INCREMENT_TYPE=${params.BUILD_TYPE}"
 
