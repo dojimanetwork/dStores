@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Desktop header with setup progress */}
         <div className="hidden lg:flex bg-white shadow-sm border-b px-6 py-3 items-center justify-between sticky top-0 z-30">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">dStores Dashboard</h1>
+            <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
           </div>
           
           {/* Setup Progress for Desktop */}

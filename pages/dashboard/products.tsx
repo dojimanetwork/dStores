@@ -2,10 +2,12 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { useState, useEffect } from 'react';
 import { useSetup } from '@/contexts/SetupContext';
 import { useSetupCompletion } from '@/contexts/SetupCompletionContext';
-import { 
-  CubeIcon, 
-  ShoppingBagIcon, 
-  PlusIcon, 
+import { Button } from '@mui/material';
+import ImportProductsDialog from '@/components/ImportProductsDialog';
+import {
+  CubeIcon,
+  ShoppingBagIcon,
+  PlusIcon,
   TrashIcon,
   ArrowLeftIcon,
   ShoppingCartIcon,
@@ -13,31 +15,32 @@ import {
   GlobeAltIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { useImportProductsStore } from '../../stores/importProductsStore';
 
 const importOptions = [
-  { 
-    name: 'Manual Entry', 
+  {
+    name: 'Manual Entry',
     id: 'manual',
     icon: CubeIcon,
     description: 'Add products manually with detailed information',
     difficulty: 'Easy'
   },
-  { 
-    name: 'Dstores Import', 
+  {
+    name: 'Dstores Import',
     id: 'dstores',
     icon: ShoppingBagIcon,
     description: 'Import your existing Dstores store products',
     difficulty: 'Easy'
   },
-  { 
-    name: 'Amazon Import', 
+  {
+    name: 'Amazon Import',
     id: 'amazon',
     icon: ShoppingCartIcon,
     description: 'Import products from your Amazon store',
     difficulty: 'Medium'
   },
-  { 
-    name: 'Alibaba Dropshipping', 
+  {
+    name: 'Alibaba Dropshipping',
     id: 'alibaba',
     icon: GlobeAltIcon,
     description: 'Set up dropshipping with Alibaba suppliers',
@@ -57,12 +60,12 @@ interface Product {
 }
 
 // Component for editing database products
-function DatabaseProductRow({ 
-  product, 
-  onUpdate, 
-  onRemove 
-}: { 
-  product: Product; 
+function DatabaseProductRow({
+  product,
+  onUpdate,
+  onRemove
+}: {
+  product: Product;
   onUpdate: (id: string, field: keyof Product, value: any) => void;
   onRemove: (id: string) => void;
 }) {
@@ -94,7 +97,7 @@ function DatabaseProductRow({
             <input
               type="text"
               value={editedProduct.name}
-              onChange={(e) => setEditedProduct(prev => ({...prev, name: e.target.value}))}
+              onChange={(e) => setEditedProduct(prev => ({ ...prev, name: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
@@ -103,7 +106,7 @@ function DatabaseProductRow({
             <input
               type="number"
               value={editedProduct.price}
-              onChange={(e) => setEditedProduct(prev => ({...prev, price: parseFloat(e.target.value) || 0}))}
+              onChange={(e) => setEditedProduct(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
               min="0"
               step="0.01"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -113,7 +116,7 @@ function DatabaseProductRow({
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={editedProduct.status}
-              onChange={(e) => setEditedProduct(prev => ({...prev, status: e.target.value as Product['status']}))}
+              onChange={(e) => setEditedProduct(prev => ({ ...prev, status: e.target.value as Product['status'] }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="active">Active</option>
@@ -127,7 +130,7 @@ function DatabaseProductRow({
             <input
               type="number"
               value={editedProduct.stock || 0}
-              onChange={(e) => setEditedProduct(prev => ({...prev, stock: parseInt(e.target.value) || 0}))}
+              onChange={(e) => setEditedProduct(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))}
               min="0"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
@@ -137,7 +140,7 @@ function DatabaseProductRow({
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea
             value={editedProduct.description}
-            onChange={(e) => setEditedProduct(prev => ({...prev, description: e.target.value}))}
+            onChange={(e) => setEditedProduct(prev => ({ ...prev, description: e.target.value }))}
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
           />
@@ -166,16 +169,15 @@ function DatabaseProductRow({
         <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center space-x-2 mb-1">
             <h4 className="font-medium text-gray-900 text-sm truncate">{product.name}</h4>
-            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-              product.status === 'active' ? 'bg-green-100 text-green-800' :
+            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${product.status === 'active' ? 'bg-green-100 text-green-800' :
               product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-              product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
-              'bg-red-100 text-red-800'
-            }`}>
+                product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                  'bg-red-100 text-red-800'
+              }`}>
               {product.status === 'active' ? 'Active' :
-               product.status === 'draft' ? 'Draft' :
-               product.status === 'inactive' ? 'Inactive' :
-               'Out of Stock'}
+                product.status === 'draft' ? 'Draft' :
+                  product.status === 'inactive' ? 'Inactive' :
+                    'Out of Stock'}
             </span>
           </div>
           {/* Source Badge */}
@@ -216,13 +218,13 @@ function getProductSource(product: Product): string {
   if (product.source) {
     return product.source;
   }
-  
+
   // For imported products, get from ID prefix
   if (product.id.startsWith('manual-')) return 'manual';
   if (product.id.startsWith('dstores-')) return 'dstores';
   if (product.id.startsWith('amazon-')) return 'amazon';
   if (product.id.startsWith('alibaba-')) return 'alibaba';
-  
+
   return 'unknown';
 }
 
@@ -269,8 +271,8 @@ function getSourceBadgeColor(source: string): string {
 export default function Products() {
   const { setupState, updateProducts } = useSetup();
   const { markAddProductsComplete, isStepCompleted, completionState } = useSetupCompletion();
-  const [activeMethod, setActiveMethod] = useState<string | null>(null); // Currently viewing method
-  const [allImportedProducts, setAllImportedProducts] = useState<{[key: string]: Product[]}>({
+  const [activeMethod, setActiveMethod] = useState<string | null>(null);
+  const [allImportedProducts, setAllImportedProducts] = useState<{ [key: string]: Product[] }>({
     manual: [],
     dstores: [],
     amazon: [],
@@ -280,12 +282,14 @@ export default function Products() {
   const [error, setError] = useState<string | null>(null);
   const [databaseProducts, setDatabaseProducts] = useState<Product[]>([]);
   const [isDatabaseProductsOpen, setIsDatabaseProductsOpen] = useState(true);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importCounts, setImportCounts] = useState({
     manual: 0,
     dstores: 0,
     amazon: 0,
     alibaba: 0
   });
+  const { importedProducts } = useImportProductsStore();
 
   // Helper function to safely parse JSON responses
   const safeJsonParse = async (response: Response, errorContext: string) => {
@@ -294,7 +298,7 @@ export default function Products() {
       if (!text || text.trim() === '') {
         throw new Error(`Empty response from ${errorContext}`);
       }
-      
+
       try {
         return JSON.parse(text);
       } catch (parseError) {
@@ -318,10 +322,10 @@ export default function Products() {
         }));
       }
     }
-    
+
     // Load products from database
     loadDatabaseProducts();
-    
+
     // Load import counts from localStorage
     const savedCounts = localStorage.getItem('importCounts');
     if (savedCounts) {
@@ -347,7 +351,7 @@ export default function Products() {
       }
 
       const data = await safeJsonParse(response, 'products API');
-      
+
       if (data && data.products && Array.isArray(data.products)) {
         const dbProducts = data.products.map((p: any) => ({
           id: p.id.toString(),
@@ -360,7 +364,7 @@ export default function Products() {
           source: p.metadata?.source || 'database'
         }));
         setDatabaseProducts(dbProducts);
-        
+
         // Update completion tracking based on product count
         markAddProductsComplete(dbProducts.length);
       } else {
@@ -377,16 +381,17 @@ export default function Products() {
   };
 
   const handleImportMethodSelect = async (methodId: string) => {
+    setImportDialogOpen(false);
     setActiveMethod(methodId);
     setError(null);
-    
+
     // Check if this method already has products
     const existingProducts = allImportedProducts[methodId] || [];
     if (existingProducts.length > 0) {
       console.log(`Method ${methodId} already has ${existingProducts.length} products`);
       return;
     }
-    
+
     // Only import if no products exist for this method
     setLoading(true);
 
@@ -407,7 +412,7 @@ export default function Products() {
       }
 
       const importedProducts = await safeJsonParse(response, 'import-products API');
-      
+
       if (!Array.isArray(importedProducts)) {
         throw new Error('Invalid products data format from import API');
       }
@@ -421,13 +426,14 @@ export default function Products() {
       // Filter out duplicates before adding to the list
       const filteredProducts = await filterOutDuplicates(productsWithSource, methodId);
 
+      // Preserve existing products and add new ones
       setAllImportedProducts(prev => ({
         ...prev,
-        [methodId]: filteredProducts
+        [methodId]: [...(prev[methodId] || []), ...filteredProducts]
       }));
-      
+
       console.log(`✅ Imported ${filteredProducts.length} unique products from ${methodId} (${importedProducts.length - filteredProducts.length} duplicates prevented)`);
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to import products';
       console.error('Import error:', err);
@@ -454,24 +460,24 @@ export default function Products() {
       ...prev,
       manual: [...(prev.manual || []), newProduct]
     }));
-    
+
     updateProducts({ items: [...(allImportedProducts.manual || []), newProduct] });
   };
 
   const handleProductUpdate = (id: string, field: keyof Product, value: any) => {
     if (!activeMethod) return;
-    
+
     const currentProducts = allImportedProducts[activeMethod] || [];
     const updatedProductsList = currentProducts.map(product =>
       product.id === id ? { ...product, [field]: value } : product
     );
-    
+
     setAllImportedProducts(prev => ({
       ...prev,
       [activeMethod]: updatedProductsList
     }));
     updateProducts({ items: updatedProductsList });
-    
+
     // Only sync to database for existing database products (numeric IDs)
     if (!id.startsWith('manual-') && !id.includes('-') && !isNaN(Number(id))) {
       syncProductToDatabase(id, { [field]: value });
@@ -480,21 +486,29 @@ export default function Products() {
 
   const handleProductRemove = (id: string) => {
     if (!activeMethod) return;
-    
+
+    // Remove from local state
     const currentProducts = allImportedProducts[activeMethod] || [];
     const updatedProductsList = currentProducts.filter(p => p.id !== id);
-    
+
     setAllImportedProducts(prev => ({
       ...prev,
       [activeMethod]: updatedProductsList
     }));
+
+    // Remove from store
+    const storeProducts = useImportProductsStore.getState().importedProducts;
+    const updatedStoreProducts = storeProducts.filter(p => p.id !== id);
+    useImportProductsStore.getState().setImportedProducts(updatedStoreProducts);
+
+    // Update products in setup context
     updateProducts({ items: updatedProductsList });
-    
+
     // Only delete from database for existing database products (numeric IDs)
     if (!id.startsWith('manual-') && !id.includes('-') && !isNaN(Number(id))) {
       deleteProductFromDatabase(id);
     }
-    
+
     // Update completion tracking (only database products count for completion)
     markAddProductsComplete(databaseProducts.length);
   };
@@ -519,13 +533,13 @@ export default function Products() {
         product.id === id ? { ...product, [field]: value } : product
       );
       setDatabaseProducts(updatedDbProducts);
-      
+
       // Sync to database
       await syncProductToDatabase(id, { [field]: value });
-      
+
       // Reload database products to ensure consistency
       await loadDatabaseProducts();
-      
+
     } catch (error) {
       console.error('Error updating database product:', error);
       setError('Failed to update product in database');
@@ -571,16 +585,16 @@ export default function Products() {
   const filterOutDuplicates = async (products: Product[], source: string): Promise<Product[]> => {
     const filteredProducts: Product[] = [];
     const duplicateNames: string[] = [];
-    
+
     for (const product of products) {
       // Check if already exists in database
       const isDuplicateInDB = await checkForDuplicate(product.name, source);
-      
+
       // Check if already exists in current import list
-      const isDuplicateInImport = filteredProducts.some(p => 
+      const isDuplicateInImport = filteredProducts.some(p =>
         p.name.toLowerCase().trim() === product.name.toLowerCase().trim()
       );
-      
+
       if (isDuplicateInDB) {
         duplicateNames.push(product.name);
         console.log(`⚠️ Skipping "${product.name}" - already exists in database`);
@@ -591,19 +605,19 @@ export default function Products() {
         filteredProducts.push(product);
       }
     }
-    
+
     if (duplicateNames.length > 0) {
       const message = `Skipped ${duplicateNames.length} duplicate product(s): ${duplicateNames.slice(0, 3).join(', ')}${duplicateNames.length > 3 ? '...' : ''}`;
       console.log(`📊 Duplicate prevention: ${message}`);
     }
-    
+
     return filteredProducts;
   };
 
   // New function to save manual products to database
   const saveProductToDatabase = async (product: Product) => {
     if (!activeMethod) return;
-    
+
     try {
       // First, check if a product with the same name and source already exists
       const response = await fetch('/api/products/check-duplicate', {
@@ -623,11 +637,11 @@ export default function Products() {
       }
 
       const duplicateCheck = await safeJsonParse(response, 'duplicate check API');
-      
+
       // If product already exists, update it instead of creating a new one
       if (duplicateCheck.exists) {
         console.log(`🔄 Product "${product.name}" already exists (ID: ${duplicateCheck.product.id}), updating instead of creating duplicate`);
-        
+
         const updateResponse = await fetch(`/api/products?id=${duplicateCheck.product.id}`, {
           method: 'PUT',
           headers: {
@@ -679,26 +693,26 @@ export default function Products() {
       }
 
       const result = await safeJsonParse(createResponse, 'save product API');
-      
+
       if (!result || !result.product || !result.product.id) {
         throw new Error('Invalid response format: missing product data');
       }
-      
+
       // Update product with database ID
       const currentProducts = allImportedProducts[activeMethod] || [];
       const updatedProductsList = currentProducts.map(p =>
         p.id === product.id ? { ...p, id: result.product.id.toString() } : p
       );
-      
+
       setAllImportedProducts(prev => ({
         ...prev,
         [activeMethod]: updatedProductsList
       }));
       updateProducts({ items: updatedProductsList });
-      
+
       // Return the saved product for batch operations
       return result.product;
-      
+
     } catch (error) {
       console.error('Error saving product:', error);
       throw error; // Re-throw to be handled by caller
@@ -715,11 +729,11 @@ export default function Products() {
         },
         body: JSON.stringify(updates),
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await safeJsonParse(response, 'update product API');
       console.log('Product updated successfully:', result);
     } catch (error) {
@@ -734,11 +748,11 @@ export default function Products() {
       const response = await fetch(`/api/products?id=${id}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await safeJsonParse(response, 'delete product API');
       console.log('Product deleted successfully:', result);
     } catch (error) {
@@ -751,23 +765,23 @@ export default function Products() {
   const finalizeProducts = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const currentProducts = allImportedProducts[activeMethod || 'manual'] || [];
-      
+
       if (currentProducts.length === 0) {
         setError('No products to save');
         return;
       }
-      
+
       console.log(`Processing ${currentProducts.length} products from ${activeMethod}...`);
-      
+
       const savedProducts = [];
       let successCount = 0;
       let failCount = 0;
       let updateCount = 0;
       let createCount = 0;
-      
+
       for (const product of currentProducts) {
         try {
           // Ensure the product has the correct source from the active method
@@ -775,11 +789,11 @@ export default function Products() {
             ...product,
             source: activeMethod || product.source || 'manual'
           };
-          
+
           const savedProduct = await saveProductToDatabase(productWithSource);
           savedProducts.push(savedProduct);
           successCount++;
-          
+
           // Check if this was an update or create based on the console logs we expect
           if (savedProduct.id) {
             // This is a bit of a heuristic, but we can improve logging
@@ -790,13 +804,13 @@ export default function Products() {
           console.error(`✗ Failed to save: ${product.name}`, error);
         }
       }
-      
+
       // Reload database products to reflect all changes
       await loadDatabaseProducts();
-      
+
       // Don't clear imported products - keep them so users can see what they imported
       // and the counts remain accurate. Users can clear selection manually if needed.
-      
+
       if (successCount > 0) {
         console.log(`✅ Successfully processed ${successCount} products from ${activeMethod}`);
         console.log(`📊 Summary: ${successCount} total processed`);
@@ -806,7 +820,7 @@ export default function Products() {
       } else {
         setError('Failed to save any products to database');
       }
-      
+
     } catch (error) {
       console.error('Error in finalizeProducts:', error);
       setError('Failed to save products to database');
@@ -826,7 +840,7 @@ export default function Products() {
 
   const handleReImport = async () => {
     if (!activeMethod) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -847,7 +861,7 @@ export default function Products() {
       }
 
       const importedProducts = await safeJsonParse(response, 'import-products API');
-      
+
       if (!Array.isArray(importedProducts)) {
         throw new Error('Invalid products data format from import API');
       }
@@ -865,9 +879,9 @@ export default function Products() {
         ...prev,
         [activeMethod]: filteredProducts
       }));
-      
+
       console.log(`✅ Re-imported ${filteredProducts.length} unique products from ${activeMethod} (${importedProducts.length - filteredProducts.length} duplicates prevented)`);
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to re-import products';
       console.error('Re-import error:', err);
@@ -880,7 +894,7 @@ export default function Products() {
   // Function to clear imported products for current method
   const clearImportedProducts = () => {
     if (!activeMethod) return;
-    
+
     setAllImportedProducts(prev => ({
       ...prev,
       [activeMethod]: []
@@ -891,7 +905,7 @@ export default function Products() {
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
-        {/* Main Header with Import Methods */}
+        {/* Main Header with Import Button */}
         <div className="mb-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -899,52 +913,69 @@ export default function Products() {
                 Add Products to Your Store
               </h1>
               <p className="text-sm sm:text-base text-gray-600">
-                Choose an import method or add products manually
+                Import products or add them manually
               </p>
             </div>
-            
-            {/* Import Method Buttons */}
-            <div className="flex flex-wrap gap-2">
-              {importOptions.map((option) => {
-                const IconComponent = option.icon;
-                const isActive = activeMethod === option.id;
-                
-                // Calculate total count: imported products + database products from this source
-                const importedCount = allImportedProducts[option.id]?.length || 0;
-                const databaseCount = databaseProducts.filter(p => getProductSource(p) === option.id).length;
-                const totalCount = importedCount + databaseCount;
-                
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleImportMethodSelect(option.id)}
-                    disabled={loading}
-                    className={`relative flex items-center px-4 py-2.5 border rounded-lg text-sm font-medium transition-all hover:shadow-md ${
-                      isActive
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50'
-                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <IconComponent className="w-4 h-4 mr-2" />
-                    <span>{option.name}</span>
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold min-w-[20px] text-center ${
-                      isActive
-                        ? 'bg-white text-blue-600'
-                        : totalCount > 0 
-                          ? 'bg-blue-100 text-blue-600'
-                          : 'bg-gray-100 text-gray-500'
-                    }`}>
-                      {totalCount}
-                    </span>
-                    {isActive && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+
+            {/* Import Button */}
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => setImportDialogOpen(true)}
+              startIcon={<PlusIcon className="w-5 h-5" />}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                px: 3,
+                py: 1.5
+              }}
+            >
+              Import Products
+            </Button>
           </div>
         </div>
+
+        {/* Import Dialog */}
+        <ImportProductsDialog
+          open={importDialogOpen}
+          onClose={() => setImportDialogOpen(false)}
+          onSelect={handleImportMethodSelect}
+        />
+
+        {/* Imported Products Grid (Amazon, etc.) */}
+        {importedProducts.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Imported Products</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {importedProducts.map(product => (
+                <div key={product.id} className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden group relative">
+                  <div className="relative">
+                    <img src={product.image} alt={product.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform" />
+                    <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow">Amazon</span>
+                    {/* Delete Button */}
+                    <button
+                      onClick={() => {
+                        const updatedProducts = importedProducts.filter(p => p.id !== product.id);
+                        useImportProductsStore.getState().setImportedProducts(updatedProducts);
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 hover:text-red-600 transition-colors"
+                      title="Remove product"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-gray-900 mb-1 truncate" title={product.title}>{product.title}</h3>
+                    <p className="text-green-600 font-bold text-xl mb-2">${product.price.toFixed(2)}</p>
+                    <p className="text-gray-500 text-sm line-clamp-2 mb-2">{product.description}</p>
+                    <a href={product.link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-blue-600 hover:underline text-sm font-medium">View on Amazon</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Responsive Layout Container */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -998,7 +1029,7 @@ export default function Products() {
                             Add Product
                           </button>
                         )}
-                        
+
                         {activeMethod && activeMethod !== 'manual' && allImportedProducts[activeMethod]?.length > 0 && (
                           <>
                             <button
@@ -1011,7 +1042,7 @@ export default function Products() {
                               </svg>
                               Re-import
                             </button>
-                            
+
                             <button
                               onClick={() => handleProductRemove(allImportedProducts[activeMethod][0].id)}
                               disabled={loading}
@@ -1033,7 +1064,7 @@ export default function Products() {
                           {(() => {
                             // Check if there are existing database products from this source
                             const existingDbProducts = databaseProducts.filter(p => getProductSource(p) === activeMethod).length;
-                            
+
                             if (existingDbProducts > 0) {
                               return (
                                 <>
@@ -1041,10 +1072,10 @@ export default function Products() {
                                     Ready to Import More?
                                   </h3>
                                   <p className="text-sm sm:text-base text-gray-600 mb-4">
-                                    You have {existingDbProducts} product{existingDbProducts !== 1 ? 's' : ''} from {getSourceLabel(activeMethod)} 
-                                    already in your catalog (visible in the sidebar). 
-                                    {activeMethod === 'manual' 
-                                      ? ' Add more products manually below.' 
+                                    You have {existingDbProducts} product{existingDbProducts !== 1 ? 's' : ''} from {getSourceLabel(activeMethod)}
+                                    already in your catalog (visible in the sidebar).
+                                    {activeMethod === 'manual'
+                                      ? ' Add more products manually below.'
                                       : ' Click the buttons above to import more products or re-import to refresh.'}
                                   </p>
                                 </>
@@ -1054,8 +1085,8 @@ export default function Products() {
                                 <>
                                   <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No products yet</h3>
                                   <p className="text-sm sm:text-base text-gray-600 mb-4">
-                                    {activeMethod === 'manual' 
-                                      ? 'Add your first product manually' 
+                                    {activeMethod === 'manual'
+                                      ? 'Add your first product manually'
                                       : 'Import products to get started'}
                                   </p>
                                 </>
@@ -1087,16 +1118,15 @@ export default function Products() {
                                       <h3 className="text-base sm:text-lg font-medium text-gray-900">
                                         Product #{index + 1}
                                       </h3>
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        product.status === 'active' ? 'bg-green-100 text-green-800' :
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-800' :
                                         product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                                        product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
-                                        'bg-red-100 text-red-800'
-                                      }`}>
+                                          product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                                            'bg-red-100 text-red-800'
+                                        }`}>
                                         {product.status === 'active' ? 'Active' :
-                                         product.status === 'draft' ? 'Draft' :
-                                         product.status === 'inactive' ? 'Inactive' :
-                                         'Out of Stock'}
+                                          product.status === 'draft' ? 'Draft' :
+                                            product.status === 'inactive' ? 'Inactive' :
+                                              'Out of Stock'}
                                       </span>
                                     </div>
                                     <button
@@ -1185,16 +1215,15 @@ export default function Products() {
                                       <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                                         {product.name}
                                       </h3>
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        product.status === 'active' ? 'bg-green-100 text-green-800' :
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-800' :
                                         product.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                                        product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
-                                        'bg-red-100 text-red-800'
-                                      }`}>
+                                          product.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                                            'bg-red-100 text-red-800'
+                                        }`}>
                                         {product.status === 'active' ? 'Active' :
-                                         product.status === 'draft' ? 'Draft' :
-                                         product.status === 'inactive' ? 'Inactive' :
-                                         'Out of Stock'}
+                                          product.status === 'draft' ? 'Draft' :
+                                            product.status === 'inactive' ? 'Inactive' :
+                                              'Out of Stock'}
                                       </span>
                                     </div>
                                     <div className="flex items-center space-x-4 mb-1">
@@ -1328,7 +1357,7 @@ export default function Products() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg flex flex-col max-h-full">
                   {/* Header with Toggle */}
                   <div className="flex items-center justify-between p-4 flex-shrink-0">
-                    <div 
+                    <div
                       className="flex items-center cursor-pointer hover:text-blue-800 transition-colors flex-1"
                       onClick={() => setIsDatabaseProductsOpen(!isDatabaseProductsOpen)}
                     >
@@ -1346,14 +1375,14 @@ export default function Products() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="text-right">
                       <div className="text-xl font-bold text-blue-600">
                         {databaseProducts.length}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Collapsible Database Products List - Scrollable */}
                   {isDatabaseProductsOpen && (
                     <div className="border-t border-blue-200 flex-1 min-h-0">
@@ -1376,8 +1405,8 @@ export default function Products() {
                       <div className="overflow-y-auto max-h-96 lg:max-h-[60vh] p-4 space-y-3">
                         {databaseProducts.map((product) => (
                           <div key={product.id} className="text-sm">
-                            <DatabaseProductRow 
-                              product={product} 
+                            <DatabaseProductRow
+                              product={product}
                               onUpdate={handleDatabaseProductUpdate}
                               onRemove={handleDatabaseProductRemove}
                             />
