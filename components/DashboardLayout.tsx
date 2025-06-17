@@ -2,6 +2,9 @@ import { ReactNode, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import SetupProgress from '@/components/SetupProgress';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useWeb3AuthConnect, useWeb3AuthDisconnect } from "@web3auth/modal/react";
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,12 +12,25 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isConnected } = useWeb3AuthConnect();
+  const { disconnect } = useWeb3AuthDisconnect();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await disconnect();
+      Cookies.remove('web3auth_token');
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -46,11 +62,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </button>
             <h1 className="ml-3 text-lg font-semibold text-gray-900">dStores</h1>
           </div>
-          
+
           {/* Setup Progress for Mobile */}
           <div className="flex-1 max-w-xs ml-4">
             <SetupProgress compact />
           </div>
+
+          {/* Logout button for mobile */}
+          {isConnected && (
+            <button
+              onClick={handleLogout}
+              className="relative group flex items-center justify-center space-x-2 px-4 py-2 rounded-lg overflow-hidden hover-lift border border-gray-200 ml-4"
+            >
+              {/* Subtle gradient background */}
+              <div className="absolute inset-0 bg-gray-100 opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              {/* Content */}
+              <div className="relative z-10 flex items-center">
+                <svg className="h-5 w-5 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-gray-700 font-medium">Disconnect</span>
+              </div>
+
+              {/* Subtle glow effect on hover */}
+              <div className="absolute right-0 top-0 h-8 w-8 bg-gradient-to-tl from-blue-500/20 to-transparent rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </button>
+          )}
         </div>
 
         {/* Desktop header with setup progress */}
@@ -58,11 +98,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center">
             <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
           </div>
-          
+
           {/* Setup Progress for Desktop */}
           <div className="flex-1 max-w-2xl ml-8">
             <SetupProgress compact />
           </div>
+
+          {/* Logout button for desktop */}
+          {isConnected && (
+            <button
+              onClick={handleLogout}
+              className="relative group flex items-center justify-center space-x-2 px-5 py-2 rounded-lg overflow-hidden hover-lift border border-gray-200"
+            >
+              {/* Subtle gradient background */}
+              <div className="absolute inset-0 bg-gray-100 opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              {/* Content */}
+              <div className="relative z-10 flex items-center">
+                <svg className="h-5 w-5 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-gray-700 font-medium">Disconnect</span>
+              </div>
+
+              {/* Subtle glow effect on hover */}
+              <div className="absolute right-0 top-0 h-8 w-8 bg-gradient-to-tl from-blue-500/20 to-transparent rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </button>
+          )}
         </div>
 
         {/* Main content area */}
