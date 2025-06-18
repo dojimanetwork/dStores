@@ -131,7 +131,7 @@ def updateArgoCD(String environment, String registry, String imageTag) {
                 rm -rf ArgoCD
             fi
             git clone https://${GIT_TOKEN}@github.com/dojimanetwork/ArgoCD.git
-            cd ArgoCD/apps/web3-stores/overlays/${environment}
+            cd ArgoCD/apps/dstores/overlays/${environment}
             /var/lib/jenkins/kustomize edit set image ${registry}/${IMAGENAME}:${imageTag}
             git add .
             git commit -m "Update image ${registry}/${IMAGENAME} with ${imageTag}"
