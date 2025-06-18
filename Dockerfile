@@ -2,9 +2,13 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++ \
+    && ln -sf python3 /usr/bin/python
+
 # Install dependencies only when needed
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --force
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -26,7 +30,7 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -48,8 +52,8 @@ USER nextjs
 EXPOSE 3000
 
 # Set environment variables
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # Start the application
 CMD ["node", "server.js"] 
