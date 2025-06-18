@@ -6,6 +6,7 @@ pipeline {
     environment {
         IMAGENAME = 'web3-stores'
         OPENAI_API_KEY = credentials('OPENAI_API_KEY')
+        WEB3AUTH_CLIENT_ID = credentials('WEB3AUTH_CLIENT_ID')
         NODE_ENV = 'production'
     }
     parameters {

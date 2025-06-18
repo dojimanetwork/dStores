@@ -80,17 +80,20 @@ docker-build: ecr-check pull
 	@if [ -n "${GCR}" ] && [ -n "${AZURE}" ]; then\
 		docker build --no-cache \
 			--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} \
+			--build-arg WEB3AUTH_CLIENT_ID=${WEB3AUTH_CLIENT_ID} \
 			-f ./Dockerfile \
 			-t ${GCR}/${IMAGENAME}:${IMAGETAG} \
 			-t ${AZURE}/${IMAGENAME}:${IMAGETAG} .;\
 	elif [ -n "${GCR}" ]; then\
 		docker build --no-cache \
 			--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} \
+			--build-arg WEB3AUTH_CLIENT_ID=${WEB3AUTH_CLIENT_ID} \
 			-f ./Dockerfile \
 			-t ${GCR}/${IMAGENAME}:${IMAGETAG} .;\
 	elif [ -n "${AZURE}" ]; then\
 		docker build --no-cache \
 			--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} \
+			--build-arg WEB3AUTH_CLIENT_ID=${WEB3AUTH_CLIENT_ID} \
 			-f ./Dockerfile \
 			-t ${AZURE}/${IMAGENAME}:${IMAGETAG} .;\
 	else\
@@ -106,6 +109,7 @@ azure-build: azure-check pull
 	@echo "AZURE: ${AZURE}"
 	docker build --no-cache \
 		--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} \
+		--build-arg WEB3AUTH_CLIENT_ID=${WEB3AUTH_CLIENT_ID} \
 		-f ./Dockerfile \
 		-t ${AZURE}/${IMAGENAME}:${IMAGETAG} .
 

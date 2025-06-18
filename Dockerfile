@@ -20,7 +20,9 @@ COPY . .
 
 # Set build arguments and environment variables
 ARG OPENAI_API_KEY
+ARG WEB3AUTH_CLIENT_ID
 ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV WEB3AUTH_CLIENT_ID=${WEB3AUTH_CLIENT_ID}
 ENV NODE_ENV=production
 
 # Build the application
