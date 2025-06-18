@@ -9,6 +9,10 @@ import { ProductProvider } from '@/contexts/ProductContext'
 import { SetupCompletionProvider } from '@/contexts/SetupCompletionContext'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useEffect, useState } from 'react'
+import { Web3AuthProvider } from "@web3auth/modal/react";
+import { Web3AuthProvider as Web3AuthContextProvider } from "../contexts/Web3AuthContext";
+import web3authConfig from "../config/web3auth";
+import Layout from "../components/Layout";
 
 function ErrorFallback({ error }: { error: Error }) {
   useEffect(() => {
@@ -26,8 +30,8 @@ function ErrorFallback({ error }: { error: Error }) {
             {error.message}
           </pre>
         </details>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Reload Page
@@ -43,19 +47,19 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     setMounted(true);
     console.log('App component mounted')
-    
+
     // Global error handler for clipboard and other unhandled errors
     const handleGlobalError = (event: ErrorEvent) => {
       console.log('Global error caught:', event.message);
-      
+
       // Suppress clipboard errors
-      if (event.message.includes('clipboard') || 
-          event.message.includes('Copy to clipboard is not supported')) {
+      if (event.message.includes('clipboard') ||
+        event.message.includes('Copy to clipboard is not supported')) {
         console.warn('Clipboard error suppressed:', event.message);
         event.preventDefault();
         return false;
       }
-      
+
       // Handle useStore context errors
       if (event.message.includes('useStore must be used within a StoreProvider')) {
         console.error('StoreProvider context error. Reloading page...');
@@ -70,14 +74,14 @@ export default function App({ Component, pageProps }: AppProps) {
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.log('Unhandled rejection caught:', event.reason);
-      
+
       if (event.reason?.message?.includes('clipboard') ||
-          event.reason?.message?.includes('Copy to clipboard is not supported')) {
+        event.reason?.message?.includes('Copy to clipboard is not supported')) {
         console.warn('Clipboard promise rejection suppressed:', event.reason);
         event.preventDefault();
         return false;
       }
-      
+
       if (event.reason?.message?.includes('useStore must be used within a StoreProvider')) {
         console.error('StoreProvider context rejection. Redirecting...');
         event.preventDefault();
@@ -100,24 +104,24 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <ErrorBoundary 
+    <ErrorBoundary
       FallbackComponent={ErrorFallback}
       onError={(error, errorInfo) => {
         console.error('Error Boundary triggered:', error, errorInfo);
-        
+
         // Suppress clipboard errors in error boundary too
-        if (error.message.includes('clipboard') || 
-            error.message.includes('Copy to clipboard is not supported')) {
+        if (error.message.includes('clipboard') ||
+          error.message.includes('Copy to clipboard is not supported')) {
           console.warn('Clipboard error caught by boundary:', error.message);
           return;
         }
-        
+
         // Handle context errors
         if (error.message.includes('useStore must be used within a StoreProvider')) {
           console.error('Context provider error caught by boundary:', error.message);
           return;
         }
-        
+
         console.error('Unhandled error caught by boundary:', error);
       }}
       onReset={() => {
@@ -125,17 +129,27 @@ export default function App({ Component, pageProps }: AppProps) {
         window.location.reload();
       }}
     >
-      <SetupCompletionProvider>
-        <SetupProvider>
-          <StoreProvider>
-            <LayoutProvider>
-              <ProductProvider>
-                <Component {...pageProps} />
-              </ProductProvider>
-            </LayoutProvider>
-          </StoreProvider>
-        </SetupProvider>
-      </SetupCompletionProvider>
+      <div className="w-full min-h-screen">
+        <Web3AuthProvider
+          config={web3authConfig}
+        >
+          <Web3AuthContextProvider>
+            <SetupCompletionProvider>
+              <SetupProvider>
+                <StoreProvider>
+                  <LayoutProvider>
+                    <ProductProvider>
+                      <Layout>
+                        <Component {...pageProps} />
+                      </Layout>
+                    </ProductProvider>
+                  </LayoutProvider>
+                </StoreProvider>
+              </SetupProvider>
+            </SetupCompletionProvider>
+          </Web3AuthContextProvider>
+        </Web3AuthProvider>
+      </div>
     </ErrorBoundary>
   )
 }
